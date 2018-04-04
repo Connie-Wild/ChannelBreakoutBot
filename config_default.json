@@ -1,0 +1,18 @@
+{
+    "product_code" : "FX_BTC_JPY",
+    "key" : "bitflyer_API_key",
+    "secret" : "bitflyer_API_secret",
+    "line_notify_token" : "token",
+    "healthCheck" : true,
+    "entryTerm" : 5,
+    "closeTerm" : 5,
+    "rangeTerm" : null,
+    "rangeTh" : null,
+    "waitTerm" : 0,
+    "waitTh" : 10000,
+    "candleTerm" : "5T",
+    "cost" : 0,
+    "trading" : false,
+    "backtest" : true,
+    "optimization" : false
+}
