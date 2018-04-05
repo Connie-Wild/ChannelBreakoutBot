@@ -41,10 +41,6 @@ class ChannelBreakOut:
         #注文執行コスト．遅延などでこの値幅を最初から取られていると仮定する
         self._cost = 3000
         self.order = Order()
-        #API設定
-        self.key = config["key"]
-        self.secret = config["secret"]
-        self.api = pybitflyer.API(self.key, self.secret)
         #取引所のヘルスチェック
         self.healthCheck = config["healthCheck"]
         #ラインに稼働状況を通知
@@ -602,18 +598,19 @@ class ChannelBreakOut:
             isRange = self.isRange(df_candleStick, rangeTerm, rangeTh)
 
             #取引所のヘルスチェック
-            boardState = self.api.getboardstate(product_code=self.product_code)
+            boardState = self.order.getboardstate()
             serverHealth = True
-            if (boardState["health"] == "NORMAL" or boardState["health"] == "BUSY") and boardState["state"] == "RUNNING" and self.healthCheck:
+            if (boardState["health"] == "NORMAL" or boardState["health"] == "BUSY" or boardState["health"] == "VERY BUSY") and boardState["state"] == "RUNNING" and self.healthCheck:
                 pass
             elif self.healthCheck:
                 serverHealth = False
+                logging.info('Server Health is:%s', boardState["health"])
 
             #ここからエントリー，クローズ処理
             if pos == 0 and not isRange[-1] and serverHealth:
                 #ロングエントリー
                 if judgement[0]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Long entry order")
                     orderId = self.order.market(size=lot, side="BUY")
                     pos += 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -624,7 +621,7 @@ class ChannelBreakOut:
                     lastPositionPrice = best_ask
                 #ショートエントリー
                 elif judgement[1]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Short entry order")
                     orderId = self.order.market(size=lot,side="SELL")
                     pos -= 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -637,7 +634,7 @@ class ChannelBreakOut:
             elif pos == 1:
                 #ロングクローズ
                 if judgement[2]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Long close order")
                     orderId = self.order.market(size=lot,side="SELL")
                     pos -= 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -663,7 +660,7 @@ class ChannelBreakOut:
             elif pos == -1:
                 #ショートクローズ
                 if judgement[3]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Short close order")
                     orderId = self.order.market(size=lot, side="BUY")
                     pos += 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -689,7 +686,7 @@ class ChannelBreakOut:
             if pos == 0 and not isRange[-1] and serverHealth:
                 #ロングエントリー
                 if judgement[0]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Long doten entry order")
                     orderId = self.order.market(size=lot, side="BUY")
                     pos += 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -700,7 +697,7 @@ class ChannelBreakOut:
                     lastPositionPrice = best_ask
                 #ショートエントリー
                 elif judgement[1]:
-                    logging.info(datetime.datetime.now())
+                    logging.info("Short doten entry order")
                     orderId = self.order.market(size=lot,side="SELL")
                     pos -= 1
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
@@ -788,13 +785,13 @@ class Order:
             response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
             time.sleep(3)
         return response
 
@@ -805,13 +802,13 @@ class Order:
             response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
             time.sleep(3)
         return response
 
@@ -821,13 +818,13 @@ class Order:
             response = self.api.ticker(product_code=self.product_code)
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.ticker(product_code=self.product_code)
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
         return response
 
     def getexecutions(self, order_id):
@@ -836,13 +833,29 @@ class Order:
             response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while ("status" in response or not response):
             try:
                 response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
+            time.sleep(0.5)
+        return response
+
+    def getboardstate(self):
+        response = {"status": "internalError in order.py"}
+        try:
+            response = self.api.getboardstate(product_code=self.product_code)
+        except:
+            pass
+        logging.debug(response)
+        while "status" in response:
+            try:
+                response = self.api.getboardstate(product_code=self.product_code)
+            except:
+                pass
+            logging.debug(response)
             time.sleep(0.5)
         return response
 
@@ -853,13 +866,13 @@ class Order:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
             time.sleep(3)
         return response
 
@@ -870,13 +883,13 @@ class Order:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP_LIMIT", "side": side, "size": size,"trigger_price": trigger_price, "price": price, "minute_to_expire": minute_to_expire}])
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP_LIMIT", "side": side, "size": size,"trigger_price": trigger_price, "price": price, "minute_to_expire": minute_to_expire}])
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
         return response
 
     def trailing(self, side, size, offset, minute_to_expire=None):
@@ -886,13 +899,13 @@ class Order:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "TRAIL", "side": side, "size": size, "offset": offset, "minute_to_expire": minute_to_expire}])
         except:
             pass
-        logging.info(response)
+        logging.debug(response)
         while "status" in response:
             try:
                 response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "TRAIL", "side": side, "size": size, "offset": offset, "minute_to_expire": minute_to_expire}])
             except:
                 pass
-            logging.info(response)
+            logging.debug(response)
         return response
 
 
@@ -931,10 +944,13 @@ if __name__ == '__main__':
     logging.basicConfig(
         filename='channelBreakOut.log',
         level=logging.INFO,
-        format='%(asctime)s %(levelname)s:%(message)s',
+        format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
     console=logging.StreamHandler()
     console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter(
+        fmt='%(asctime)s %(levelname)s: %(message)s',
+        datefmt='%m/%d/%Y %I:%M:%S %p'))
     logging.getLogger('').addHandler(console)
     
     #config.jsonの読み込み
