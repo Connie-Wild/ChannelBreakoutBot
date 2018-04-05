@@ -64,7 +64,7 @@ git pull
 |key|string|取引所APIのキー|
 |secret|string|取引所APIのシークレット|
 |line_notify_token|string|[LINE Notify](https://notify-bot.line.me/ja/)による通知を行う場合に、トークンを設定。|
-|healthCheck|true/false|取引所のステータスがNORMALとBUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
+|healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
 |rangeTerm|number/null|[option]下記参照|
