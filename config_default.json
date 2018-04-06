@@ -14,5 +14,6 @@
     "cost" : 0,
     "trading" : false,
     "backtest" : true,
-    "optimization" : false
+    "optimization" : false,
+    "fileName" : "chart.csv"
 }
