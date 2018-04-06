@@ -1,3 +1,9 @@
+# directory
 tmp
 csv
+
+# log
 *.log
+
+# user local
+config.json
