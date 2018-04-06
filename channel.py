@@ -46,7 +46,8 @@ class ChannelBreakOut:
         #ラインに稼働状況を通知
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
-
+        #バックテストに使用するファイル名
+        self.fileName = config["fileName"]
     @property
     def cost(self):
         return self._cost
@@ -934,9 +935,9 @@ def optimization(candleTerm):
                 logging.info('================================')
                 logging.info('entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',i[0],i[1],j[1],j[0],k[0],k[1],channelBreakOut.candleTerm)
                 #テスト
-                pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, fileName="chart.csv", showFigure=False)
+                pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName, showFigure=False)
                 paramList.append([pl,profitFactor, i,j,k])
-    
+
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
     logging.info("ProfitFactor max:")
@@ -979,7 +980,7 @@ if __name__ == '__main__':
         channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm)
     elif config["backtest"]:
         #バックテスト
-        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=True, cost=channelBreakOut.cost)
+        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName, showFigure=True, cost=channelBreakOut.cost)
     elif config["optimization"]:
         #最適化
         optimization(candleTerm=channelBreakOut.candleTerm)
