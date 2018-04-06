@@ -488,7 +488,7 @@ class ChannelBreakOut:
                 pass
 
     def describePLForNotification(self, pl, df_candleStick):
-        try
+        try:
             import matplotlib
             matplotlib.use('Agg')
             import matplotlib.pyplot as plt
