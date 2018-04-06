@@ -350,7 +350,6 @@ class ChannelBreakOut:
         """
         signalsは買い，売り，中立が入った配列
         """
-        import matplotlib.pyplot as plt
         if fileName == None:
             if "H" in candleTerm:
                 candleStick = self.getSpecifiedCandlestick(2000, "3600")
@@ -370,6 +369,7 @@ class ChannelBreakOut:
         pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, rangeTh, rangeTerm, originalWaitTerm=originalWaitTerm, waitTh=waitTh, cost=cost)
 
         if showFigure:
+            import matplotlib.pyplot as plt
             plt.figure()
             plt.subplot(211)
             plt.plot(df_candleStick.index, df_candleStick["high"])
@@ -407,8 +407,6 @@ class ChannelBreakOut:
         logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
         if showFigure:
             plt.show()
-        else:
-            plt.clf()
         return pl[-1], profitFactor
 
     def getCandlestick(self, number, period):
@@ -490,38 +488,40 @@ class ChannelBreakOut:
                 pass
 
     def describePLForNotification(self, pl, df_candleStick):
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        close = df_candleStick["close"]
-        index = range(len(pl))
-        # figure
-        fig = plt.figure(figsize=(20,12))
-        #for price
-        ax = fig.add_subplot(2, 1, 1)
-        ax.plot(df_candleStick.index, close)
-        ax.set_xlabel('Time')
-        # y axis
-        ax.set_ylabel('The price[JPY]')
-        #for PLcurve
-        ax = fig.add_subplot(2, 1, 2)
-        # plot
-        ax.plot(index, pl, color='b', label='The PL curve')
-        ax.plot(index, [0]*len(pl), color='b',)
-        # x axis
-        ax.set_xlabel('The number of Trade')
-        # y axis
-        ax.set_ylabel('The estimated Profit/Loss(JPY)')
-        # legend and title
-        ax.legend(loc='best')
-        ax.set_title('The PL curve(Time span:{})'.format(self.candleTerm))
-        # save as png
-        today = datetime.datetime.now().strftime('%Y%m%d')
-        number = "_" + str(len(pl))
-        fileName = today + number + ".png"
-        plt.savefig(fileName)
-        plt.close()
-
+        try
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            close = df_candleStick["close"]
+            index = range(len(pl))
+            # figure
+            fig = plt.figure(figsize=(20,12))
+            #for price
+            ax = fig.add_subplot(2, 1, 1)
+            ax.plot(df_candleStick.index, close)
+            ax.set_xlabel('Time')
+            # y axis
+            ax.set_ylabel('The price[JPY]')
+            #for PLcurve
+            ax = fig.add_subplot(2, 1, 2)
+            # plot
+            ax.plot(index, pl, color='b', label='The PL curve')
+            ax.plot(index, [0]*len(pl), color='b',)
+            # x axis
+            ax.set_xlabel('The number of Trade')
+            # y axis
+            ax.set_ylabel('The estimated Profit/Loss(JPY)')
+            # legend and title
+            ax.legend(loc='best')
+            ax.set_title('The PL curve(Time span:{})'.format(self.candleTerm))
+            # save as png
+            today = datetime.datetime.now().strftime('%Y%m%d')
+            number = "_" + str(len(pl))
+            fileName = today + number + ".png"
+            plt.savefig(fileName)
+            plt.close()
+        except:
+            fileName = ""
         return fileName
 
     def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None):
@@ -687,7 +687,7 @@ class ChannelBreakOut:
                         lot = round(originalLot/10,3)
                     if waitTerm == 0:
                          lot = originalLot
-            
+
             #クローズしたと同時にエントリーシグナルが出ていた場合にドテン売買
             if pos == 0 and not isRange[-1] and serverHealth:
                 #ロングエントリー
@@ -769,7 +769,7 @@ class ChannelBreakOut:
                     column = column[0:6]
                     data.append(column)
         return data[::-1]
-    
+
     def test(self):
         pass
 
@@ -959,7 +959,7 @@ if __name__ == '__main__':
         datefmt='%m/%d/%Y %I:%M:%S %p'))
     logging.getLogger('').addHandler(console)
     logging.info('Wait...')
-    
+
     #config.jsonの読み込み
     f = open('config.json', 'r')
     config = json.load(f)
