@@ -939,6 +939,10 @@ def optimization(candleTerm):
     
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
+    logging.info("======Search finished======")
+    logging.info('Search pattern :%s', len(paramList))
+    logging.info("Parameters:")
+    logging.info("(entryTerm, closeTerm), (rangeTh, rangeTerm), (waitTerm, waitTh)")
     logging.info("ProfitFactor max:")
     logging.info(paramList[pF.index(max(pF))])
     logging.info("PL max:")
