@@ -565,6 +565,7 @@ class ChannelBreakOut:
         exeTimer1 = 0
         exeTimer5 = 0
         while True:
+            logging.info('================================')
             exeMin = datetime.datetime.now().minute
             #1分ごとに基準ラインを更新
             if exeMin + 1 > exeTimer1 or (exeMin == 0 and exeTimer1 == 60):
@@ -593,7 +594,6 @@ class ChannelBreakOut:
             low = min([self.executions[-1-i]["price"] for i in range(30)])
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
-            logging.info('high:%s low:%s entryHighLine:%s entryLowLine:%s closeHighLine:%s closeLowLine:%s', high, low, entryHighLine[-1], entryLowLine[-1], closeHighLine[-1], closeLowLine[-1])
             #現在レンジ相場かどうか．
             isRange = self.isRange(df_candleStick, rangeTerm, rangeTh)
 
@@ -604,7 +604,12 @@ class ChannelBreakOut:
                 pass
             elif self.healthCheck:
                 serverHealth = False
-                logging.info('Server Health is:%s', boardState["health"])
+                logging.info('Server is %s. Do not order.', boardState["health"],)
+
+            #ログ出力
+            logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
+            logging.info('entryHighLine:%s entryLowLine:%s closeHighLine:%s closeLowLine:%s', entryHighLine[-1], entryLowLine[-1], closeHighLine[-1], closeLowLine[-1])
+            logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
 
             #ここからエントリー，クローズ処理
             if pos == 0 and not isRange[-1] and serverHealth:
@@ -952,6 +957,7 @@ if __name__ == '__main__':
         fmt='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p'))
     logging.getLogger('').addHandler(console)
+    logging.info('Wait...')
     
     #config.jsonの読み込み
     f = open('config.json', 'r')
