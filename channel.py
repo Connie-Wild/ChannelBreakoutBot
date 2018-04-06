@@ -920,6 +920,8 @@ def optimization(candleTerm):
     rangeThAndrangeTerm = [(5000,3),(10000,3),(5000,5),(10000,5),(5000,10),(10000,10),(5000,15),(10000,15),(None,None)]
     waitTermAndwaitTh = [(3,10000),(3,15000),(3,20000),(5,10000),(5,15000),(5,20000),(10,10000),(10,15000),(10,20000),(15,10000),(15,15000),(15,20000)]
 
+    progress = 1
+    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh)
     paramList = []
     for i in entryAndCloseTerm:
         for j in rangeThAndrangeTerm:
@@ -933,10 +935,11 @@ def optimization(candleTerm):
                 channelBreakOut.waitTh = k[1]
                 channelBreakOut.candleTerm = candleTerm
                 logging.info('================================')
-                logging.info('entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',i[0],i[1],j[1],j[0],k[0],k[1],channelBreakOut.candleTerm)
+                logging.info('[%s/%s]entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',progress,total,i[0],i[1],j[1],j[0],k[0],k[1],channelBreakOut.candleTerm)
                 #テスト
                 pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName, showFigure=False)
                 paramList.append([pl,profitFactor, i,j,k])
+                progress+=1
 
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
