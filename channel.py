@@ -611,6 +611,12 @@ class ChannelBreakOut:
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
             logging.info('entryHighLine:%s entryLowLine:%s closeHighLine:%s closeLowLine:%s', entryHighLine[-1], entryLowLine[-1], closeHighLine[-1], closeLowLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
+            if pos == 1:
+                logging.info("position : Long")
+            elif pos == -1:
+                logging.info("position : Short")
+            else:
+                logging.info("position : None")
 
             #ここからエントリー，クローズ処理
             if pos == 0 and not isRange[-1] and serverHealth:
