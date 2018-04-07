@@ -75,7 +75,8 @@ git pull
 |cost|number|バックテストで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
 |trading|true/false|実際にトレードを行う。|
 |backtest|true/false|バックテストを行う。|
-|optimization|true/false|別途取得したOHLCデータ`chart.csv`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
+|optimization|true/false|別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
+|fileName|string|optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`|
 
 ## optimization用のOHLCデータの取得
 for Windows 10 with Python 3.6.5
