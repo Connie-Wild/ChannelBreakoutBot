@@ -1,0 +1,10 @@
+# directory
+tmp
+
+# user data
+*.json
+*.log
+*.csv
+
+# default config
+!/config_default.json
