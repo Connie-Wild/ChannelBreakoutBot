@@ -349,7 +349,6 @@ class ChannelBreakOut:
         """
         signalsは買い，売り，中立が入った配列
         """
-        import matplotlib.pyplot as plt
         if fileName == None:
             if "H" in candleTerm:
                 candleStick = self.getSpecifiedCandlestick(2000, "3600")
@@ -369,6 +368,7 @@ class ChannelBreakOut:
         pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, rangeTh, rangeTerm, originalWaitTerm=originalWaitTerm, waitTh=waitTh, cost=cost)
 
         if showFigure:
+            import matplotlib.pyplot as plt
             plt.figure()
             plt.subplot(211)
             plt.plot(df_candleStick.index, df_candleStick["high"])
@@ -407,7 +407,7 @@ class ChannelBreakOut:
         if showFigure:
             plt.show()
         else:
-            plt.clf()
+            pass
         return pl[-1], profitFactor
 
     def getCandlestick(self, number, period):
@@ -433,7 +433,6 @@ class ChannelBreakOut:
                     column = column[0:6]
                     data.append(column)
         return data[::-1]
-
 
     def fromListToDF(self, candleStick):
         """
@@ -489,38 +488,40 @@ class ChannelBreakOut:
                 pass
 
     def describePLForNotification(self, pl, df_candleStick):
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        close = df_candleStick["close"]
-        index = range(len(pl))
-        # figure
-        fig = plt.figure(figsize=(20,12))
-        #for price
-        ax = fig.add_subplot(2, 1, 1)
-        ax.plot(df_candleStick.index, close)
-        ax.set_xlabel('Time')
-        # y axis
-        ax.set_ylabel('The price[JPY]')
-        #for PLcurve
-        ax = fig.add_subplot(2, 1, 2)
-        # plot
-        ax.plot(index, pl, color='b', label='The PL curve')
-        ax.plot(index, [0]*len(pl), color='b',)
-        # x axis
-        ax.set_xlabel('The number of Trade')
-        # y axis
-        ax.set_ylabel('The estimated Profit/Loss(JPY)')
-        # legend and title
-        ax.legend(loc='best')
-        ax.set_title('The PL curve(Time span:{})'.format(self.candleTerm))
-        # save as png
-        today = datetime.datetime.now().strftime('%Y%m%d')
-        number = "_" + str(len(pl))
-        fileName = today + number + ".png"
-        plt.savefig(fileName)
-        plt.close()
-
+        try:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            close = df_candleStick["close"]
+            index = range(len(pl))
+            # figure
+            fig = plt.figure(figsize=(20,12))
+            #for price
+            ax = fig.add_subplot(2, 1, 1)
+            ax.plot(df_candleStick.index, close)
+            ax.set_xlabel('Time')
+            # y axis
+            ax.set_ylabel('The price[JPY]')
+            #for PLcurve
+            ax = fig.add_subplot(2, 1, 2)
+            # plot
+            ax.plot(index, pl, color='b', label='The PL curve')
+            ax.plot(index, [0]*len(pl), color='b',)
+            # x axis
+            ax.set_xlabel('The number of Trade')
+            # y axis
+            ax.set_ylabel('The estimated Profit/Loss(JPY)')
+            # legend and title
+            ax.legend(loc='best')
+            ax.set_title('The PL curve(Time span:{})'.format(self.candleTerm))
+            # save as png
+            today = datetime.datetime.now().strftime('%Y%m%d')
+            number = "_" + str(len(pl))
+            fileName = today + number + ".png"
+            plt.savefig(fileName)
+            plt.close()
+        except:
+            fileName = ""
         return fileName
 
     def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None):
@@ -646,7 +647,6 @@ class ChannelBreakOut:
                     best_bid = childOrder[0]["price"]
                     plRange = best_bid - lastPositionPrice
                     pl.append(pl[-1] + plRange * lot)
-
                     message = "Long close. Lot:{}, Price:{}, pl:{}".format(lot, best_bid, pl[-1])
                     fileName = self.describePLForNotification(pl, df_candleStick)
                     self.lineNotify(message,fileName)
@@ -672,11 +672,11 @@ class ChannelBreakOut:
                     best_ask = childOrder[0]["price"]
                     plRange = lastPositionPrice - best_ask
                     pl.append(pl[-1] + plRange * lot)
-
                     message = "Short close. Lot:{}, Price:{}, pl:{}".format(lot, best_ask, pl[-1])
                     fileName = self.describePLForNotification(pl, df_candleStick)
                     self.lineNotify(message,fileName)
                     logging.info(message)
+
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
                     if plRange > waitTh:
                         waitTerm = originalWaitTerm
@@ -686,7 +686,7 @@ class ChannelBreakOut:
                         lot = round(originalLot/10,3)
                     if waitTerm == 0:
                          lot = originalLot
-            
+
             #クローズしたと同時にエントリーシグナルが出ていた場合にドテン売買
             if pos == 0 and not isRange[-1] and serverHealth:
                 #ロングエントリー
@@ -768,7 +768,7 @@ class ChannelBreakOut:
                     column = column[0:6]
                     data.append(column)
         return data[::-1]
-    
+
     def test(self):
         pass
 
@@ -913,11 +913,11 @@ class Order:
             logging.debug(response)
         return response
 
-
-def optimization(candleTerm):
+def optimization(candleTerm, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
     rangeThAndrangeTerm = [(None,3),(5000,3),(10000,3),(None,5),(5000,5),(10000,5),(None,10),(5000,10),(10000,10),(None,15),(5000,15),(10000,15),(None,None)]
     waitTermAndwaitTh = [(0,0),(3,10000),(3,15000),(3,20000),(5,10000),(5,15000),(5,20000),(10,10000),(10,15000),(10,20000),(15,10000),(15,15000),(15,20000)]
+    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh)
 
     paramList = []
     for i in entryAndCloseTerm:
@@ -930,13 +930,12 @@ def optimization(candleTerm):
                 channelBreakOut.rangeTerm = j[1]
                 channelBreakOut.waitTerm = k[0]
                 channelBreakOut.waitTh = k[1]
-                channelBreakOut.candleTerm = candleTerm
                 logging.info('================================')
-                logging.info('entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',i[0],i[1],j[1],j[0],k[0],k[1],channelBreakOut.candleTerm)
+                logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],j[1],j[0],k[0],k[1],candleTerm)
                 #テスト
-                pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, fileName="chart.csv", showFigure=False)
+                pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=candleTerm, fileName=fileName, showFigure=False)
                 paramList.append([pl,profitFactor, i,j,k])
-    
+
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
     logging.info("======Search finished======")
@@ -962,7 +961,7 @@ if __name__ == '__main__':
         datefmt='%m/%d/%Y %I:%M:%S %p'))
     logging.getLogger('').addHandler(console)
     logging.info('Wait...')
-    
+
     #config.jsonの読み込み
     f = open('config.json', 'r')
     config = json.load(f)
@@ -977,6 +976,7 @@ if __name__ == '__main__':
     channelBreakOut.waitTh = config["waitTh"]
     channelBreakOut.candleTerm = config["candleTerm"]
     channelBreakOut.cost = config["cost"]
+    channelBreakOut.fileName = config["fileName"]
 
     if config["trading"]:
         #実働
@@ -986,6 +986,6 @@ if __name__ == '__main__':
         channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=True, cost=channelBreakOut.cost)
     elif config["optimization"]:
         #最適化
-        optimization(candleTerm=channelBreakOut.candleTerm)
+        optimization(candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName)
     else:
         channelBreakOut.test()
