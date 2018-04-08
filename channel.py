@@ -399,6 +399,7 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade)
         maxLoss = min(plPerTrade)
 
+        logging.info('showFigure :%s',showFigure)
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
@@ -983,13 +984,14 @@ if __name__ == '__main__':
     channelBreakOut.candleTerm = config["candleTerm"]
     channelBreakOut.cost = config["cost"]
     channelBreakOut.fileName = config["fileName"]
+    channelBreakOut.showFigure = config["showFigure"]
 
     if config["trading"]:
         #実働
         channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm)
     elif config["backtest"]:
         #バックテスト
-        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=True, cost=channelBreakOut.cost)
+        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=channelBreakOut.showFigure, cost=channelBreakOut.cost)
     elif config["optimization"]:
         #最適化
         optimization(candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName)

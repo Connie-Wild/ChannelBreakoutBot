@@ -15,5 +15,6 @@
     "trading" : false,
     "backtest" : true,
     "optimization" : false,
-    "fileName" : "chart.csv"
+    "fileName" : "chart.csv",
+    "showFigure" : true
 }
