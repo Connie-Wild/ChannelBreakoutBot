@@ -163,8 +163,8 @@ class ChannelBreakOut:
             priceRange = self.calculatePriceRange(df_candleStick, 1)
             for i in range(len(df_candleStick.index)):
                 if i < term:
-                    lowLine.append(df_candleStick["low"][i] - priceRange[i-1] * rangePercent)
-                    highLine.append(df_candleStick["high"][i] + priceRange[i-1] * rangePercent)
+                    lowLine.append(df_candleStick["low"][i] - priceRange[i] * rangePercent)
+                    highLine.append(df_candleStick["high"][i] + priceRange[i] * rangePercent)
                 else:
                     priceRangeMean = sum(priceRange[i-term:i-1]) / term
                     low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
