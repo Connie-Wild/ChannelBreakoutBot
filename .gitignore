@@ -1,5 +1,6 @@
 # directory
 tmp
+.vscode
 
 # user data
 *.json
