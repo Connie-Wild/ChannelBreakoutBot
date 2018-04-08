@@ -6,6 +6,7 @@
     "healthCheck" : true,
     "entryTerm" : 5,
     "closeTerm" : 5,
+    "rangePercent" : 1.6,
     "rangeTerm" : null,
     "rangeTh" : null,
     "waitTerm" : 0,
