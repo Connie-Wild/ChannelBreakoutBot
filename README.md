@@ -30,7 +30,7 @@ pip install pybitflyer requests pandas pubnub tornado matplotlib
 for ubuntu16.04 with Python 3.5.2
 ```bash
 cd ChannelBreakoutBot
-apt-get install -y python3 libpng-dev libfreetype6-dev
+apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
 pip3 install -U pip setuptools
 pip3 install pybitflyer requests pandas pubnub tornado matplotlib
 ```
@@ -77,6 +77,7 @@ git pull
 |backtest|true/false|バックテストを行う。|
 |optimization|true/false|別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
 |fileName|string|optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`|
+|showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 
 ## optimization用のOHLCデータの取得
 for Windows 10 with Python 3.6.5
