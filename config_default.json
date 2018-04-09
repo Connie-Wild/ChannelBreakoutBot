@@ -7,6 +7,7 @@
     "entryTerm" : 5,
     "closeTerm" : 5,
     "rangePercent" : 1.6,
+    "rangePercentTerm" : 5,
     "rangeTerm" : null,
     "rangeTh" : null,
     "waitTerm" : 0,
