@@ -30,7 +30,7 @@ pip install pybitflyer requests pandas pubnub tornado matplotlib
 for ubuntu16.04 with Python 3.5.2
 ```bash
 cd ChannelBreakoutBot
-apt-get install -y python3 libpng-dev libfreetype6-dev
+apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
 pip3 install -U pip setuptools
 pip3 install pybitflyer requests pandas pubnub tornado matplotlib
 ```
@@ -67,6 +67,7 @@ git pull
 |healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
+|rangePercent|number/null|[option]entryTerm/closeTerm期間ぞれぞれの値幅の平均値を求め、rangePercentを掛けた値をentryTerm/closeTerm期間の高値/安値から加算/減算する。|
 |rangeTerm|number/null|[option]下記参照|
 |rangeTh|number/null|[option]レンジ相場でのエントリーを減らすために、rangeTerm期間の値幅(rangeTh)または価格の標準偏差の変動でレンジ相場の判定を行う。|
 |waitTerm|number|下記参照|
@@ -75,7 +76,9 @@ git pull
 |cost|number|バックテストで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
 |trading|true/false|実際にトレードを行う。|
 |backtest|true/false|バックテストを行う。|
-|optimization|true/false|別途取得したOHLCデータ`chart.csv`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
+|optimization|true/false|別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
+|fileName|string|optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`|
+|showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 
 ## optimization用のOHLCデータの取得
 for Windows 10 with Python 3.6.5
