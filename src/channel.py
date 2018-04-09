@@ -458,7 +458,7 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade)
         maxLoss = min(plPerTrade)
 
-        logging.info('showFigure :%s',self.showFigure)
+        logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
