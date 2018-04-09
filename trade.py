@@ -8,11 +8,13 @@ from src import channel
 if __name__ == '__main__':
     #logging設定
     logging.basicConfig(
-        filename='channelBreakOut.log',
         level=logging.INFO,
         format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
-    console=logging.StreamHandler()
+    console=logging.handlers.TimedRotatingFileHandler(
+        filename = 'log/trade.log',
+        when = 'D'
+    )
     console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter(
         fmt='%(asctime)s %(levelname)s: %(message)s',
