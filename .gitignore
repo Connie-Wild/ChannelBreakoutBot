@@ -1,11 +1,16 @@
 # directory
 tmp
 .vscode
+__pycache__
 
 # user data
 *.json
 *.log
 *.csv
+*.log.*
+*.png
 
 # default config
 !/config_default.json
+
+!.gitkeep

@@ -6,15 +6,15 @@
     "healthCheck" : true,
     "entryTerm" : 5,
     "closeTerm" : 5,
+    "rangePercent" : 1.6,
+    "rangePercentTerm" : 5,
     "rangeTerm" : null,
     "rangeTh" : null,
     "waitTerm" : 0,
     "waitTh" : 10000,
     "candleTerm" : "5T",
     "cost" : 0,
-    "trading" : false,
-    "backtest" : true,
-    "optimization" : false,
     "fileName" : "chart.csv",
-    "showFigure" : true
+    "showFigure" : true,
+    "sendFigure" : false
 }

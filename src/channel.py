@@ -1,7 +1,6 @@
-﻿#_*_ coding: utf-8 _*_
+#_*_ coding: utf-8 _*_
 #https://sshuhei.com
 
-import pybitflyer
 import json
 import requests
 import csv
@@ -18,12 +17,15 @@ from pubnub.pnconfiguration import PNReconnectionPolicy
 from tornado import gen
 import threading
 from collections import deque
+from . import bforder
+from . import cryptowatch
 
 class ChannelBreakOut:
     def __init__(self):
         #config.jsonの読み込み
         f = open('config.json', 'r')
         config = json.load(f)
+        self.cryptowatch = cryptowatch.CryptoWatch()
         #pubnubから取得した約定履歴を保存するリスト（基本的に不要．）
         self._executions = deque(maxlen=300)
         self._lot = 0.01
@@ -40,12 +42,18 @@ class ChannelBreakOut:
         self._pos = 0
         #注文執行コスト．遅延などでこの値幅を最初から取られていると仮定する
         self._cost = 3000
-        self.order = Order()
+        self.order = bforder.BFOrder()
         #取引所のヘルスチェック
         self.healthCheck = config["healthCheck"]
         #ラインに稼働状況を通知
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
+        # グラフ表示
+        self.showFigure = False
+        # バックテスト結果のグラフをLineで送る
+        self.sendFigure = False
+        # optimization用のOHLCcsvファイル
+        self.fileName = None
 
     @property
     def cost(self):
@@ -142,33 +150,59 @@ class ChannelBreakOut:
         lot = math.floor(margin*10**(-4))*10**(-2)
         return round(lot,2)
 
-    def calculateLines(self, df_candleStick, term):
+    def calculateLines(self, df_candleStick, term, rangePercent, rangePercentTerm):
         """
         期間高値・安値を計算する．
         candleStickはcryptowatchのローソク足．termは安値，高値を計算する期間．（5ならローソク足5本文の安値，高値．)
         """
         lowLine = []
         highLine = []
-        for i in range(len(df_candleStick.index)):
-            if i < term:
-                lowLine.append(df_candleStick["high"][i])
-                highLine.append(df_candleStick["low"][i])
-            else:
-                low = min([price for price in df_candleStick["low"][i-term:i-1]])
-                high = max([price for price in df_candleStick["high"][i-term:i-1]])
-                lowLine.append(low)
-                highLine.append(high)
+        if rangePercent == None or rangePercentTerm == None:
+            for i in range(len(df_candleStick.index)):
+                if i < term:
+                    lowLine.append(df_candleStick["low"][i])
+                    highLine.append(df_candleStick["high"][i])
+                else:
+                    low = min([price for price in df_candleStick["low"][i-term:i-1]])
+                    high = max([price for price in df_candleStick["high"][i-term:i-1]])
+                    lowLine.append(low)
+                    highLine.append(high)
+        else:
+            priceRange = self.calculatePriceRange(df_candleStick, 1)
+            for i in range(len(df_candleStick.index)):
+                if i < term:
+                    lowLine.append(df_candleStick["low"][i] - priceRange[i] * rangePercent)
+                    highLine.append(df_candleStick["high"][i] + priceRange[i] * rangePercent)
+                elif i < rangePercentTerm:
+                    priceRangeMean = sum(priceRange[i-term:i-1]) / term
+                    low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
+                    high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
+                    lowLine.append(low)
+                    highLine.append(high)
+                else:
+                    priceRangeMean = sum(priceRange[i-rangePercentTerm:i-1]) / rangePercentTerm
+                    low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
+                    high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
+                    lowLine.append(low)
+                    highLine.append(high)
         return (lowLine, highLine)
 
     def calculatePriceRange(self, df_candleStick, term):
         """
         termの期間の値幅を計算．
         """
-        low = [min([df_candleStick["close"][i-term+1:i].min(),df_candleStick["open"][i-term+1:i].min()]) for i in range(len(df_candleStick.index))]
-        high = [max([df_candleStick["close"][i-term+1:i].max(), df_candleStick["open"][i-term+1:i].max()]) for i in range(len(df_candleStick.index))]
-        low = pd.Series(low)
-        high = pd.Series(high)
-        priceRange = [high.iloc[i]-low.iloc[i] for i in range(len(df_candleStick.index))]
+        if term == 1:
+            low = [min([df_candleStick["close"][i].min(), df_candleStick["open"][i].min()]) for i in range(len(df_candleStick.index))]
+            high = [max([df_candleStick["close"][i].max(), df_candleStick["open"][i].max()]) for i in range(len(df_candleStick.index))]
+            low = pd.Series(low)
+            high = pd.Series(high)
+            priceRange = [high.iloc[i]-low.iloc[i] for i in range(len(df_candleStick.index))]
+        else:
+            low = [min([df_candleStick["close"][i-term+1:i].min(), df_candleStick["open"][i-term+1:i].min()]) for i in range(len(df_candleStick.index))]
+            high = [max([df_candleStick["close"][i-term+1:i].max(), df_candleStick["open"][i-term+1:i].max()]) for i in range(len(df_candleStick.index))]
+            low = pd.Series(low)
+            high = pd.Series(high)
+            priceRange = [high.iloc[i]-low.iloc[i] for i in range(len(df_candleStick.index))]
         return priceRange
 
     def isRange(self, df_candleStick, term, th):
@@ -345,29 +379,29 @@ class ChannelBreakOut:
             plPerTrade.append(plRange*lot)
         return (pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade)
 
-    def describeResult(self, entryTerm, closeTerm, fileName=None, candleTerm=None, rangeTh=5000, rangeTerm=15, originalWaitTerm=10, waitTh=10000, showFigure=True, cost=0):
+    def describeResult(self):
         """
         signalsは買い，売り，中立が入った配列
         """
-        if fileName == None:
-            if "H" in candleTerm:
-                candleStick = self.getSpecifiedCandlestick(2000, "3600")
+        if self.fileName == None:
+            if "H" in self.candleTerm:
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(2000, "3600")
             else:
-                candleStick = self.getSpecifiedCandlestick(5999, "60")
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "60")
         else:
-            candleStick = self.readDataFromFile(fileName)
+            candleStick = self.readDataFromFile(self.fileName)
 
-        if candleTerm != None:
-            df_candleStick = self.processCandleStick(candleStick, candleTerm)
+        if self.candleTerm != None:
+            df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
         else:
             df_candleStick = self.fromListToDF(candleStick)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm)
-        judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, entryTerm)
-        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, rangeTh, rangeTerm, originalWaitTerm=originalWaitTerm, waitTh=waitTh, cost=cost)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
+        judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, self.entryTerm)
+        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
 
-        if showFigure:
+        if self.showFigure:
             import matplotlib.pyplot as plt
             plt.figure()
             plt.subplot(211)
@@ -384,6 +418,31 @@ class ChannelBreakOut:
             plt.plot(df_candleStick.index, pl)
             plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
             plt.ylabel("PL(JPY)")
+        elif self.sendFigure:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            plt.figure()
+            plt.subplot(211)
+            plt.plot(df_candleStick.index, df_candleStick["high"])
+            plt.plot(df_candleStick.index, df_candleStick["low"])
+            plt.ylabel("Price(JPY)")
+            ymin = min(df_candleStick["low"]) - 200
+            ymax = max(df_candleStick["high"]) + 200
+            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
+            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
+            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
+            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
+            plt.subplot(212)
+            plt.plot(df_candleStick.index, pl)
+            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
+            plt.ylabel("PL(JPY)")
+            # save as png
+            today = datetime.datetime.now().strftime('%Y%m%d')
+            number = "_" + str(len(pl))
+            fileName = "png/" + today + number + ".png"
+            plt.savefig(fileName)
+            self.lineNotify("Result of backtest",fileName)
         else:
             pass
 
@@ -394,46 +453,25 @@ class ChannelBreakOut:
 
         winTotal = sum([i for i in plPerTrade if i > 0])
         loseTotal = sum([i for i in plPerTrade if i < 0])
-        profitFactor = round(winTotal/-loseTotal, 3)
+        try:
+            profitFactor = round(winTotal/-loseTotal, 3)
+        except:
+            profitFactor = 10
 
         maxProfit = max(plPerTrade)
         maxLoss = min(plPerTrade)
 
-        logging.info('showFigure :%s',showFigure)
+        logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
         logging.info("The profitFactor: {}".format(profitFactor))
         logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
-        if showFigure:
+        if self.showFigure:
             plt.show()
         else:
             pass
         return pl[-1], profitFactor
-
-    def getCandlestick(self, number, period):
-        """
-        number:ローソク足の数．period:ローソク足の期間（文字列で秒数を指定，Ex:1分足なら"60"）．cryptowatchはときどきおかしなデータ（price=0）が含まれるのでそれを除く．
-        """
-        #ローソク足の時間を指定
-        periods = [period]
-        #クエリパラメータを指定
-        query = {"periods":','.join(periods)}
-        #ローソク足取得
-        res = \
-            json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)[
-                "result"]
-        # ローソク足のデータを入れる配列．
-        data = []
-        for i in periods:
-            row = res[i]
-            length = len(row)
-            for column in row[:length - (number + 1):-1]:
-                # dataへローソク足データを追加．
-                if column[4] != 0:
-                    column = column[0:6]
-                    data.append(column)
-        return data[::-1]
 
     def fromListToDF(self, candleStick):
         """
@@ -518,14 +556,14 @@ class ChannelBreakOut:
             # save as png
             today = datetime.datetime.now().strftime('%Y%m%d')
             number = "_" + str(len(pl))
-            fileName = today + number + ".png"
+            fileName = "png/" + today + number + ".png"
             plt.savefig(fileName)
             plt.close()
         except:
             fileName = ""
         return fileName
 
-    def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None):
+    def loop(self):
         """
         注文の実行ループを回す関数
         """
@@ -541,20 +579,20 @@ class ChannelBreakOut:
         waitTerm = 0
 
         try:
-            if "H" in candleTerm:
-                candleStick = self.getCandlestick(480, "3600")
+            if "H" in self.candleTerm:
+                candleStick = self.cryptowatch.getCandlestick(480, "3600")
             else:
-                candleStick = self.getCandlestick(480, "60")
+                candleStick = self.cryptowatch.getCandlestick(480, "60")
         except:
             logging.error("Unknown error happend when you requested candleStick")
 
-        if candleTerm == None:
+        if self.candleTerm == None:
             df_candleStick = self.fromListToDF(candleStick)
         else:
-            df_candleStick = self.processCandleStick(candleStick, candleTerm)
+            df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
 
         #直近約定件数30件の高値と安値
         high = max([self.executions[-1-i]["price"] for i in range(30)])
@@ -574,20 +612,20 @@ class ChannelBreakOut:
                 exeTimer1 = exeMin + 1
                 logging.info("Renewing candleSticks")
                 try:
-                    if "H" in candleTerm:
-                        candleStick = self.getCandlestick(480, "3600")
+                    if "H" in self.candleTerm:
+                        candleStick = self.cryptowatch.getCandlestick(480, "3600")
                     else:
-                        candleStick = self.getCandlestick(480, "60")
+                        candleStick = self.cryptowatch.getCandlestick(480, "60")
                 except:
                     logging.error("Unknown error happend when you requested candleStick")
 
-                if candleTerm == None:
+                if self.candleTerm == None:
                     df_candleStick = self.fromListToDF(candleStick)
                 else:
-                    df_candleStick = self.processCandleStick(candleStick, candleTerm)
+                    df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
 
-                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm)
-                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm)
+                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
             else:
                 pass
 
@@ -597,12 +635,13 @@ class ChannelBreakOut:
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
             #現在レンジ相場かどうか．
-            isRange = self.isRange(df_candleStick, rangeTerm, rangeTh)
+            isRange = self.isRange(df_candleStick, self.rangeTerm, self.rangeTh)
 
             #取引所のヘルスチェック
             boardState = self.order.getboardstate()
             serverHealth = True
-            if (boardState["health"] == "NORMAL" or boardState["health"] == "BUSY" or boardState["health"] == "VERY BUSY") and boardState["state"] == "RUNNING" and self.healthCheck:
+            permitHealth = ["NORMAL", "BUSY", "VERY BUSY"]
+            if (boardState["health"] in permitHealth) and boardState["state"] == "RUNNING" and self.healthCheck:
                 pass
             elif self.healthCheck:
                 serverHealth = False
@@ -660,8 +699,8 @@ class ChannelBreakOut:
                     logging.info(message)
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
-                    if plRange > waitTh:
-                        waitTerm = originalWaitTerm
+                    if plRange > self.waitTh:
+                        waitTerm = self.waitTerm
                         lot = round(originalLot/10,3)
                     if waitTerm > 0:
                         waitTerm -= 1
@@ -685,8 +724,8 @@ class ChannelBreakOut:
                     logging.info(message)
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
-                    if plRange > waitTh:
-                        waitTerm = originalWaitTerm
+                    if plRange > self.waitTh:
+                        waitTerm = self.waitTerm
                         lot = round(originalLot/10,3)
                     if waitTerm > 0:
                         waitTerm -= 1
@@ -749,251 +788,3 @@ class ChannelBreakOut:
         pubnub.subscribe().channels(channels).execute()
         pubnubThread = threading.Thread(target=pubnub.start)
         pubnubThread.start()
-
-    def getSpecifiedCandlestick(self, number, period):
-        """
-        number:ローソク足の数．period:ローソク足の期間（文字列で秒数を指定，Ex:1分足なら"60"）．cryptowatchはときどきおかしなデータ（price=0）が含まれるのでそれを除く
-        """
-        # ローソク足の時間を指定
-        periods = [period]
-        # クエリパラメータを指定
-        query = {"periods": ','.join(periods), "after": 1}
-        # ローソク足取得
-        try:
-            res = json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)
-            res = res["result"]
-        except:
-            logging.error(res)
-        # ローソク足のデータを入れる配列．
-        data = []
-        for i in periods:
-            row = res[i]
-            length = len(row)
-            for column in row[:length - (number + 1):-1]:
-                # dataへローソク足データを追加．
-                if column[4] != 0:
-                    column = column[0:6]
-                    data.append(column)
-        return data[::-1]
-
-    def test(self):
-        pass
-
-#注文処理をまとめている
-class Order:
-    def __init__(self):
-        #config.jsonの読み込み
-        f = open('config.json', 'r')
-        config = json.load(f)
-        self.product_code = config["product_code"]
-        self.key = config["key"]
-        self.secret = config["secret"]
-        self.api = pybitflyer.API(self.key, self.secret)
-
-    def limit(self, side, price, size, minute_to_expire=None):
-        logging.info("Order: Limit. Side : {}".format(side))
-        response = {"status":"internalError in order.py"}
-        try:
-            response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
-            except:
-                pass
-            logging.debug(response)
-            time.sleep(3)
-        return response
-
-    def market(self, side, size, minute_to_expire= None):
-        logging.info("Order: Market. Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
-            except:
-                pass
-            logging.debug(response)
-            time.sleep(3)
-        return response
-
-    def ticker(self):
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.ticker(product_code=self.product_code)
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.ticker(product_code=self.product_code)
-            except:
-                pass
-            logging.debug(response)
-        return response
-
-    def getexecutions(self, order_id):
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
-        except:
-            pass
-        logging.debug(response)
-        while ("status" in response or not response):
-            try:
-                response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
-            except:
-                pass
-            logging.debug(response)
-            time.sleep(0.5)
-        return response
-
-    def getboardstate(self):
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.getboardstate(product_code=self.product_code)
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.getboardstate(product_code=self.product_code)
-            except:
-                pass
-            logging.debug(response)
-            time.sleep(0.5)
-        return response
-
-    def stop(self, side, size, trigger_price, minute_to_expire=None):
-        logging.info("Order: Stop. Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
-            except:
-                pass
-            logging.debug(response)
-            time.sleep(3)
-        return response
-
-    def stop_limit(self, side, size, trigger_price, price, minute_to_expire=None):
-        logging.info("Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP_LIMIT", "side": side, "size": size,"trigger_price": trigger_price, "price": price, "minute_to_expire": minute_to_expire}])
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP_LIMIT", "side": side, "size": size,"trigger_price": trigger_price, "price": price, "minute_to_expire": minute_to_expire}])
-            except:
-                pass
-            logging.debug(response)
-        return response
-
-    def trailing(self, side, size, offset, minute_to_expire=None):
-        logging.info("Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
-        try:
-            response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "TRAIL", "side": side, "size": size, "offset": offset, "minute_to_expire": minute_to_expire}])
-        except:
-            pass
-        logging.debug(response)
-        while "status" in response:
-            try:
-                response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "TRAIL", "side": side, "size": size, "offset": offset, "minute_to_expire": minute_to_expire}])
-            except:
-                pass
-            logging.debug(response)
-        return response
-
-def optimization(candleTerm, fileName):
-    entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
-    rangeThAndrangeTerm = [(None,3),(5000,3),(10000,3),(None,5),(5000,5),(10000,5),(None,10),(5000,10),(10000,10),(None,15),(5000,15),(10000,15),(None,None)]
-    waitTermAndwaitTh = [(0,0),(3,10000),(3,15000),(3,20000),(5,10000),(5,15000),(5,20000),(10,10000),(10,15000),(10,20000),(15,10000),(15,15000),(15,20000)]
-    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh)
-
-    paramList = []
-    for i in entryAndCloseTerm:
-        for j in rangeThAndrangeTerm:
-            for k in waitTermAndwaitTh:
-                channelBreakOut = ChannelBreakOut()
-                channelBreakOut.entryTerm = i[0]
-                channelBreakOut.closeTerm = i[1]
-                channelBreakOut.rangeTh = j[0]
-                channelBreakOut.rangeTerm = j[1]
-                channelBreakOut.waitTerm = k[0]
-                channelBreakOut.waitTh = k[1]
-                logging.info('================================')
-                logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],j[1],j[0],k[0],k[1],candleTerm)
-                #テスト
-                pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=candleTerm, fileName=fileName, showFigure=False)
-                paramList.append([pl,profitFactor, i,j,k])
-
-    pF = [i[1] for i in paramList]
-    pL = [i[0] for i in paramList]
-    logging.info("======Search finished======")
-    logging.info('Search pattern :%s', len(paramList))
-    logging.info("Parameters:")
-    logging.info("(entryTerm, closeTerm), (rangeTh, rangeTerm), (waitTerm, waitTh)")
-    logging.info("ProfitFactor max:")
-    logging.info(paramList[pF.index(max(pF))])
-    logging.info("PL max:")
-    logging.info(paramList[pL.index(max(pL))])
-
-if __name__ == '__main__':
-    #logging設定
-    logging.basicConfig(
-        filename='channelBreakOut.log',
-        level=logging.INFO,
-        format='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p')
-    console=logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    console.setFormatter(logging.Formatter(
-        fmt='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p'))
-    logging.getLogger('').addHandler(console)
-    logging.info('Wait...')
-
-    #config.jsonの読み込み
-    f = open('config.json', 'r')
-    config = json.load(f)
-
-    #channelBreakOut設定値
-    channelBreakOut = ChannelBreakOut()
-    channelBreakOut.entryTerm = config["entryTerm"]
-    channelBreakOut.closeTerm = config["closeTerm"]
-    channelBreakOut.rangeTerm = config["rangeTerm"]
-    channelBreakOut.rangeTh = config["rangeTh"]
-    channelBreakOut.waitTerm = config["waitTerm"]
-    channelBreakOut.waitTh = config["waitTh"]
-    channelBreakOut.candleTerm = config["candleTerm"]
-    channelBreakOut.cost = config["cost"]
-    channelBreakOut.fileName = config["fileName"]
-    channelBreakOut.showFigure = config["showFigure"]
-
-    if config["trading"]:
-        #実働
-        channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm)
-    elif config["backtest"]:
-        #バックテスト
-        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=channelBreakOut.showFigure, cost=channelBreakOut.cost)
-    elif config["optimization"]:
-        #最適化
-        optimization(candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName)
-    else:
-        channelBreakOut.test()
