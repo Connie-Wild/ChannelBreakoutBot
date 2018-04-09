@@ -36,7 +36,7 @@ def optimization(candleTerm, fileName):
 
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
-    logging.info("======Search finished======")
+    logging.info("======Optimization finished======")
     logging.info('Search pattern :%s', len(paramList))
     logging.info("Parameters:")
     logging.info("(entryTerm, closeTerm), (rangePercent, rangePercentTerm), (rangeTh, rangeTerm), (waitTerm, waitTh)")
@@ -44,6 +44,8 @@ def optimization(candleTerm, fileName):
     logging.info(paramList[pF.index(max(pF))])
     logging.info("PL max:")
     logging.info(paramList[pL.index(max(pL))])
+    message = "Optimization finished.\n ProfitFactor max:{}\n PL max:{}".format(paramList[pF.index(max(pF))], paramList[pL.index(max(pL))])
+    channelBreakOut.lineNotify(message)
 
 if __name__ == '__main__':
     #logging設定
