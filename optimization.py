@@ -28,6 +28,7 @@ def optimization(candleTerm, fileName):
                     channelBreakOut.rangePercentTerm = l[1]
                     channelBreakOut.showFigure = False
                     channelBreakOut.fileName = fileName
+                    channelBreakOut.candleTerm = candleTerm
                     logging.info('================================')
                     logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm)
                     #テスト
