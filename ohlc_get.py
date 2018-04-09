@@ -19,7 +19,7 @@ else:
 
 http = urllib3.PoolManager()
 url = 'https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc?after=1'
-resp = json.loads(http.request('GET', url).data)['result'][periods]
+resp = json.loads(http.request('GET', url).data.decode('utf-8'))['result'][periods]
 for r in resp:
     date = str(datetime.datetime.fromtimestamp(r[0]))
     if targetDate in date:
