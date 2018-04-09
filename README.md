@@ -75,10 +75,13 @@ git pull
 |waitTh|number|rangeTh円以上の値幅を取った場合，次のwaitTermトレードはロットを1/10に落とす。(大きいトレンドのあとの大きなリバや戻りで損をしやすいため)|
 |candleTerm|string|ロウソクの期間を指定。1T(1分足)、5T(5分足)、1H(1時間足)。分はT、時はHで示す。|
 |cost|number|バックテストで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
-|fileName|string|optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`|
+|fileName|string/null|バックテストおよび、optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`。指定が無い場合は都度取得する。|
 |showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 
 ## バックテスト
+別途取得したOHLCデータ`fileName`を元にバックテストを行う。  
+`fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。   
+
 for Windows 10 with Python 3.6.5
 ```bash
 python backtest.py
@@ -90,6 +93,7 @@ python3 backtest.py
 
 ## optimization
 別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。  
+`fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。(都度取得すると時間がかかる上に同じOHLCデータでの比較が出来ないので`fileName`の指定をする事をオススメします。)  
 自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。  
 
 for Windows 10 with Python 3.6.5
@@ -102,6 +106,12 @@ python3 optimization.py
 ```
 
 ## optimization用のOHLCデータの取得
+コマンドライン引数に取得したい日付と取得時間足を指定する事が出来る。  
+時間足：1分足 = 60 , 1時間足 = 3600  
+日付：yyyy-mm-dd  
+例)`ohlc_get.py 300 2018-04-05`  
+引数を指定しない場合、1分足データを6000件取得する。  
+
 for Windows 10 with Python 3.6.5
 ```bash
 python ohlc_get.py > chart.csv

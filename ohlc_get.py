@@ -7,16 +7,19 @@ import datetime
 import time
 import sys
 
-# コマンドライン引数に日付を指定するとその日のみ抽出する(yyyy-mm-dd)
-# ・例
-# $python3 ohlc_get.py 2018-04-05
+if len(sys.argv) > 1:
+    periods = sys.argv[1]
+    targetDate = ''
+elif len(sys.argv) > 2:
+    periods = sys.argv[1]
+    targetDate = sys.argv[2]
+else:
+    periods = '60'
+    targetDate = ''
+
 http = urllib3.PoolManager()
 url = 'https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc?after=1'
-resp = json.loads(http.request('GET', url).data)['result']['60']
-if len(sys.argv) > 1:
-    targetDate = sys.argv[1]
-else:
-    targetDate = ''
+resp = json.loads(http.request('GET', url).data)['result'][periods]
 for r in resp:
     date = str(datetime.datetime.fromtimestamp(r[0]))
     if targetDate in date:
