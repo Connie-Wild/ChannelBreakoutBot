@@ -40,11 +40,11 @@ pip3 install pybitflyer requests pandas pubnub tornado matplotlib
 
 for Windows 10 with Python 3.6.5
 ```bash
-python channel.py
+python trade.py
 ```
 for ubuntu16.04 with Python 3.5.2
 ```bash
-python3 channel.py
+python3 trade.py
 ```
 
 ## 最新版へのアップデート方法
@@ -75,11 +75,28 @@ git pull
 |waitTh|number|rangeTh円以上の値幅を取った場合，次のwaitTermトレードはロットを1/10に落とす。(大きいトレンドのあとの大きなリバや戻りで損をしやすいため)|
 |candleTerm|string|ロウソクの期間を指定。1T(1分足)、5T(5分足)、1H(1時間足)。分はT、時はHで示す。|
 |cost|number|バックテストで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
-|trading|true/false|実際にトレードを行う。|
-|backtest|true/false|バックテストを行う。|
-|optimization|true/false|別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。|
 |fileName|string|optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`|
 |showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
+
+## バックテスト
+for Windows 10 with Python 3.6.5
+```bash
+python backtest.py
+```
+for ubuntu16.04 with Python 3.5.2
+```bash
+python3 backtest.py
+```
+
+## optimization
+for Windows 10 with Python 3.6.5
+```bash
+python optimization.py
+```
+for ubuntu16.04 with Python 3.5.2
+```bash
+python3 optimization.py
+```
 
 ## optimization用のOHLCデータの取得
 for Windows 10 with Python 3.6.5
