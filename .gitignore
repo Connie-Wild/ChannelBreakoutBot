@@ -10,3 +10,5 @@ __pycache__
 
 # default config
 !/config_default.json
+
+!.gitkeep
