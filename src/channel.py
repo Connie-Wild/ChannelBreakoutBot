@@ -17,8 +17,8 @@ from pubnub.pnconfiguration import PNReconnectionPolicy
 from tornado import gen
 import threading
 from collections import deque
-import bforder
-import cryptowatch
+from . import bforder
+from . import cryptowatch
 
 class ChannelBreakOut:
     def __init__(self):

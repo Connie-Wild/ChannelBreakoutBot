@@ -3,7 +3,7 @@
 
 import json
 import logging
-import channel
+from src import channel
 
 if __name__ == '__main__':
     #logging設定
