@@ -52,15 +52,15 @@ if __name__ == '__main__':
         level=logging.INFO,
         format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p')
-    console=logging.handlers.TimedRotatingFileHandler(
+    logfile=logging.handlers.TimedRotatingFileHandler(
         filename = 'log/optimization.log',
         when = 'D'
     )
-    console.setLevel(logging.INFO)
-    console.setFormatter(logging.Formatter(
+    logfile.setLevel(logging.INFO)
+    logfile.setFormatter(logging.Formatter(
         fmt='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S %p'))
-    logging.getLogger('').addHandler(console)
+    logging.getLogger('').addHandler(logfile)
     logging.info('Wait...')
 
     #config.jsonの読み込み
