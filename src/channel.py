@@ -453,7 +453,10 @@ class ChannelBreakOut:
 
         winTotal = sum([i for i in plPerTrade if i > 0])
         loseTotal = sum([i for i in plPerTrade if i < 0])
-        profitFactor = round(winTotal/-loseTotal, 3)
+        try:
+            profitFactor = round(winTotal/-loseTotal, 3)
+        except:
+            profitFactor = 10
 
         maxProfit = max(plPerTrade)
         maxLoss = min(plPerTrade)
