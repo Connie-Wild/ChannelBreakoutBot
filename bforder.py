@@ -1,6 +1,8 @@
 import pybitflyer
 import json
 import logging
+import time
+import datetime
 
 #注文処理をまとめている
 class BFOrder:

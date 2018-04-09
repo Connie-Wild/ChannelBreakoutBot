@@ -51,6 +51,3 @@ class CryptoWatch:
                     column = column[0:6]
                     data.append(column)
         return data[::-1]
-
-    def test(self):
-        pass
