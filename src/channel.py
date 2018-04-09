@@ -724,7 +724,7 @@ class ChannelBreakOut:
                     logging.info(message)
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
-                    if plRange > waitTh:
+                    if plRange > self.waitTh:
                         waitTerm = self.waitTerm
                         lot = round(originalLot/10,3)
                     if waitTerm > 0:
