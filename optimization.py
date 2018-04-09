@@ -26,10 +26,12 @@ def optimization(candleTerm, fileName):
                     channelBreakOut.waitTh = k[1]
                     channelBreakOut.rangePercent = l[0]
                     channelBreakOut.rangePercentTerm = l[1]
+                    channelBreakOut.showFigure = False
+                    channelBreakOut.fileName = fileName
                     logging.info('================================')
                     logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm)
                     #テスト
-                    pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=candleTerm, fileName=fileName, showFigure=False, rangePercent=channelBreakOut.rangePercent, rangePercentTerm=channelBreakOut.rangePercentTerm)
+                    pl, profitFactor =  channelBreakOut.describeResult()
                     paramList.append([pl,profitFactor, i,l,j,k])
 
     pF = [i[1] for i in paramList]

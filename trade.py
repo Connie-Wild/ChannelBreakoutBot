@@ -40,4 +40,4 @@ if __name__ == '__main__':
     channelBreakOut.showFigure = config["showFigure"]
 
     #実働
-    channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm, channelBreakOut.rangePercent, channelBreakOut.rangePercentTerm)
+    channelBreakOut.loop()
