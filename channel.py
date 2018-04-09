@@ -1,4 +1,4 @@
-﻿#_*_ coding: utf-8 _*_
+#_*_ coding: utf-8 _*_
 #https://sshuhei.com
 
 import pybitflyer
@@ -46,8 +46,7 @@ class ChannelBreakOut:
         #ラインに稼働状況を通知
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
-        #バックテストに使用するファイル名
-        self.fileName = config["fileName"]
+
     @property
     def cost(self):
         return self._cost
@@ -948,7 +947,6 @@ def optimization(candleTerm, fileName):
     rangePercentList = [None,1.2,1.4,1.6]
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
-    progress = 1
     paramList = []
     for i in entryAndCloseTerm:
         for j in rangeThAndrangeTerm:
