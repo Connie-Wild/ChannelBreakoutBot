@@ -606,7 +606,8 @@ class ChannelBreakOut:
             #取引所のヘルスチェック
             boardState = self.order.getboardstate()
             serverHealth = True
-            if (boardState["health"] == "NORMAL" or boardState["health"] == "BUSY" or boardState["health"] == "VERY BUSY") and boardState["state"] == "RUNNING" and self.healthCheck:
+            permitHealth = ["NORMAL", "BUSY", "VERY BUSY"]
+            if (boardState["health"] in permitHealth) and boardState["state"] == "RUNNING" and self.healthCheck:
                 pass
             elif self.healthCheck:
                 serverHealth = False
