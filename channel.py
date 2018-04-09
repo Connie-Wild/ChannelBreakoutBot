@@ -144,14 +144,14 @@ class ChannelBreakOut:
         lot = math.floor(margin*10**(-4))*10**(-2)
         return round(lot,2)
 
-    def calculateLines(self, df_candleStick, term, rangePercent):
+    def calculateLines(self, df_candleStick, term, rangePercent, rangePercentTerm):
         """
         期間高値・安値を計算する．
         candleStickはcryptowatchのローソク足．termは安値，高値を計算する期間．（5ならローソク足5本文の安値，高値．)
         """
         lowLine = []
         highLine = []
-        if rangePercent == None:
+        if rangePercent == None or rangePercentTerm == None:
             for i in range(len(df_candleStick.index)):
                 if i < term:
                     lowLine.append(df_candleStick["low"][i])
@@ -167,8 +167,14 @@ class ChannelBreakOut:
                 if i < term:
                     lowLine.append(df_candleStick["low"][i] - priceRange[i] * rangePercent)
                     highLine.append(df_candleStick["high"][i] + priceRange[i] * rangePercent)
-                else:
+                elif i < rangePercentTerm:
                     priceRangeMean = sum(priceRange[i-term:i-1]) / term
+                    low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
+                    high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
+                    lowLine.append(low)
+                    highLine.append(high)
+                else:
+                    priceRangeMean = sum(priceRange[i-rangePercentTerm:i-1]) / rangePercentTerm
                     low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
                     high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
                     lowLine.append(low)
@@ -367,7 +373,7 @@ class ChannelBreakOut:
             plPerTrade.append(plRange*lot)
         return (pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade)
 
-    def describeResult(self, entryTerm, closeTerm, fileName=None, candleTerm=None, rangeTh=5000, rangeTerm=15, originalWaitTerm=10, waitTh=10000, showFigure=True, cost=0, rangePercent=None):
+    def describeResult(self, entryTerm, closeTerm, fileName=None, candleTerm=None, rangeTh=5000, rangeTerm=15, originalWaitTerm=10, waitTh=10000, showFigure=True, cost=0, rangePercent=None, rangePercentTerm=None):
         """
         signalsは買い，売り，中立が入った配列
         """
@@ -384,8 +390,8 @@ class ChannelBreakOut:
         else:
             df_candleStick = self.fromListToDF(candleStick)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
         judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, entryTerm)
         pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, rangeTh, rangeTerm, originalWaitTerm=originalWaitTerm, waitTh=waitTh, cost=cost)
 
@@ -523,7 +529,7 @@ class ChannelBreakOut:
             fileName = ""
         return fileName
 
-    def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None, rangePercent=None):
+    def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None, rangePercent=None, rangePercentTerm=None):
         """
         注文の実行ループを回す関数
         """
@@ -551,8 +557,8 @@ class ChannelBreakOut:
         else:
             df_candleStick = self.processCandleStick(candleStick, candleTerm)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
 
         #直近約定件数30件の高値と安値
         high = max([self.executions[-1-i]["price"] for i in range(30)])
@@ -584,8 +590,8 @@ class ChannelBreakOut:
                 else:
                     df_candleStick = self.processCandleStick(candleStick, candleTerm)
 
-                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent)
-                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent)
+                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
+                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
             else:
                 pass
 
@@ -753,7 +759,7 @@ def optimization(candleTerm, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
     rangeThAndrangeTerm = [(None,3),(5000,3),(10000,3),(None,5),(5000,5),(10000,5),(None,10),(5000,10),(10000,10),(None,15),(5000,15),(10000,15),(None,None)]
     waitTermAndwaitTh = [(0,0),(3,10000),(3,15000),(3,20000),(5,10000),(5,15000),(5,20000),(10,10000),(10,15000),(10,20000),(15,10000),(15,15000),(15,20000)]
-    rangePercentList = [None,1.2,1.4,1.6]
+    rangePercentList = [(None,None),(1.5,5),(2,5),(2.5,5)]
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
     paramList = []
@@ -768,11 +774,12 @@ def optimization(candleTerm, fileName):
                     channelBreakOut.rangeTerm = j[1]
                     channelBreakOut.waitTerm = k[0]
                     channelBreakOut.waitTh = k[1]
-                    channelBreakOut.rangePercent = l
+                    channelBreakOut.rangePercent = l[0]
+                    channelBreakOut.rangePercentTerm = l[1]
                     logging.info('================================')
-                    logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l,j[1],j[0],k[0],k[1],candleTerm)
+                    logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm)
                     #テスト
-                    pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=candleTerm, fileName=fileName, showFigure=False, rangePercent=channelBreakOut.rangePercent)
+                    pl, profitFactor =  channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=candleTerm, fileName=fileName, showFigure=False, rangePercent=channelBreakOut.rangePercent, rangePercentTerm=channelBreakOut.rangePercentTerm)
                     paramList.append([pl,profitFactor, i,l,j,k])
 
     pF = [i[1] for i in paramList]
@@ -780,7 +787,7 @@ def optimization(candleTerm, fileName):
     logging.info("======Search finished======")
     logging.info('Search pattern :%s', len(paramList))
     logging.info("Parameters:")
-    logging.info("(entryTerm, closeTerm), rangePercent, (rangeTh, rangeTerm), (waitTerm, waitTh)")
+    logging.info("(entryTerm, closeTerm), (rangePercent, rangePercentTerm), (rangeTh, rangeTerm), (waitTerm, waitTh)")
     logging.info("ProfitFactor max:")
     logging.info(paramList[pF.index(max(pF))])
     logging.info("PL max:")
@@ -810,6 +817,7 @@ if __name__ == '__main__':
     channelBreakOut.entryTerm = config["entryTerm"]
     channelBreakOut.closeTerm = config["closeTerm"]
     channelBreakOut.rangePercent = config["rangePercent"]
+    channelBreakOut.rangePercentTerm = config["rangePercentTerm"]
     channelBreakOut.rangeTerm = config["rangeTerm"]
     channelBreakOut.rangeTh = config["rangeTh"]
     channelBreakOut.waitTerm = config["waitTerm"]
@@ -821,10 +829,10 @@ if __name__ == '__main__':
 
     if config["trading"]:
         #実働
-        channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm, channelBreakOut.rangePercent)
+        channelBreakOut.loop(channelBreakOut.entryTerm, channelBreakOut.closeTerm, channelBreakOut.rangeTh, channelBreakOut.rangeTerm, channelBreakOut.waitTerm, channelBreakOut.waitTh, channelBreakOut.candleTerm, channelBreakOut.rangePercent, channelBreakOut.rangePercentTerm)
     elif config["backtest"]:
         #バックテスト
-        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=channelBreakOut.showFigure, cost=channelBreakOut.cost, rangePercent=channelBreakOut.rangePercent)
+        channelBreakOut.describeResult(entryTerm=channelBreakOut.entryTerm, closeTerm=channelBreakOut.closeTerm, rangeTh=channelBreakOut.rangeTh, rangeTerm=channelBreakOut.rangeTerm, originalWaitTerm=channelBreakOut.waitTerm, waitTh=channelBreakOut.waitTh, candleTerm=channelBreakOut.candleTerm, showFigure=channelBreakOut.showFigure, cost=channelBreakOut.cost, rangePercent=channelBreakOut.rangePercent, rangePercentTerm=channelBreakOut.rangePercentTerm)
     elif config["optimization"]:
         #最適化
         optimization(candleTerm=channelBreakOut.candleTerm, fileName=channelBreakOut.fileName)
