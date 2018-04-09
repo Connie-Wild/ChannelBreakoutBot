@@ -18,12 +18,14 @@ from tornado import gen
 import threading
 from collections import deque
 import bforder
+import cryptowatch
 
 class ChannelBreakOut:
     def __init__(self):
         #config.jsonの読み込み
         f = open('config.json', 'r')
         config = json.load(f)
+        self.cryptowatch = cryptowatch.CryptoWatch()
         #pubnubから取得した約定履歴を保存するリスト（基本的に不要．）
         self._executions = deque(maxlen=300)
         self._lot = 0.01
@@ -371,9 +373,9 @@ class ChannelBreakOut:
         """
         if fileName == None:
             if "H" in candleTerm:
-                candleStick = self.getSpecifiedCandlestick(2000, "3600")
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(2000, "3600")
             else:
-                candleStick = self.getSpecifiedCandlestick(5999, "60")
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "60")
         else:
             candleStick = self.readDataFromFile(fileName)
 
@@ -430,30 +432,6 @@ class ChannelBreakOut:
         else:
             pass
         return pl[-1], profitFactor
-
-    def getCandlestick(self, number, period):
-        """
-        number:ローソク足の数．period:ローソク足の期間（文字列で秒数を指定，Ex:1分足なら"60"）．cryptowatchはときどきおかしなデータ（price=0）が含まれるのでそれを除く．
-        """
-        #ローソク足の時間を指定
-        periods = [period]
-        #クエリパラメータを指定
-        query = {"periods":','.join(periods)}
-        #ローソク足取得
-        res = \
-            json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)[
-                "result"]
-        # ローソク足のデータを入れる配列．
-        data = []
-        for i in periods:
-            row = res[i]
-            length = len(row)
-            for column in row[:length - (number + 1):-1]:
-                # dataへローソク足データを追加．
-                if column[4] != 0:
-                    column = column[0:6]
-                    data.append(column)
-        return data[::-1]
 
     def fromListToDF(self, candleStick):
         """
@@ -562,9 +540,9 @@ class ChannelBreakOut:
 
         try:
             if "H" in candleTerm:
-                candleStick = self.getCandlestick(480, "3600")
+                candleStick = self.cryptowatch.getCandlestick(480, "3600")
             else:
-                candleStick = self.getCandlestick(480, "60")
+                candleStick = self.cryptowatch.getCandlestick(480, "60")
         except:
             logging.error("Unknown error happend when you requested candleStick")
 
@@ -595,9 +573,9 @@ class ChannelBreakOut:
                 logging.info("Renewing candleSticks")
                 try:
                     if "H" in candleTerm:
-                        candleStick = self.getCandlestick(480, "3600")
+                        candleStick = self.cryptowatch.getCandlestick(480, "3600")
                     else:
-                        candleStick = self.getCandlestick(480, "60")
+                        candleStick = self.cryptowatch.getCandlestick(480, "60")
                 except:
                     logging.error("Unknown error happend when you requested candleStick")
 
@@ -770,34 +748,6 @@ class ChannelBreakOut:
         pubnubThread = threading.Thread(target=pubnub.start)
         pubnubThread.start()
 
-    def getSpecifiedCandlestick(self, number, period):
-        """
-        number:ローソク足の数．period:ローソク足の期間（文字列で秒数を指定，Ex:1分足なら"60"）．cryptowatchはときどきおかしなデータ（price=0）が含まれるのでそれを除く
-        """
-        # ローソク足の時間を指定
-        periods = [period]
-        # クエリパラメータを指定
-        query = {"periods": ','.join(periods), "after": 1}
-        # ローソク足取得
-        try:
-            res = json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)
-            res = res["result"]
-        except:
-            logging.error(res)
-        # ローソク足のデータを入れる配列．
-        data = []
-        for i in periods:
-            row = res[i]
-            length = len(row)
-            for column in row[:length - (number + 1):-1]:
-                # dataへローソク足データを追加．
-                if column[4] != 0:
-                    column = column[0:6]
-                    data.append(column)
-        return data[::-1]
-
-    def test(self):
-        pass
 
 def optimization(candleTerm, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
