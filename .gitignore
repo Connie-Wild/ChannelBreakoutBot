@@ -1,5 +1,6 @@
 # directory
 tmp
+__pycache__
 
 # user data
 *.json

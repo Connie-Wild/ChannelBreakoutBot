@@ -14,9 +14,6 @@
     "waitTh" : 10000,
     "candleTerm" : "5T",
     "cost" : 0,
-    "trading" : false,
-    "backtest" : true,
-    "optimization" : false,
     "fileName" : "chart.csv",
     "showFigure" : true
 }
