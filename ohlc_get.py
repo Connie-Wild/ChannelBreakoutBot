@@ -7,10 +7,10 @@ import datetime
 import time
 import sys
 
-if len(sys.argv) > 1:
+if len(sys.argv) == 2:
     periods = sys.argv[1]
     targetDate = ''
-elif len(sys.argv) > 2:
+elif len(sys.argv) == 3:
     periods = sys.argv[1]
     targetDate = sys.argv[2]
 else:
