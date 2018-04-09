@@ -74,7 +74,7 @@ git pull
 |waitTerm|number|下記参照|
 |waitTh|number|rangeTh円以上の値幅を取った場合，次のwaitTermトレードはロットを1/10に落とす。(大きいトレンドのあとの大きなリバや戻りで損をしやすいため)|
 |candleTerm|string|ロウソクの期間を指定。1T(1分足)、5T(5分足)、1H(1時間足)。分はT、時はHで示す。|
-|cost|number|バックテストで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
+|cost|number|バックテストおよび、optimizationで利用。遅延等で1トレード毎にcost円分のコストが発生するものとして評価を行う。|
 |fileName|string/null|バックテストおよび、optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`。指定が無い場合は都度取得する。|
 |showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 |sendFigure|true/false|バックテスト結果のグラフをLINE Notifyで通知する。`showFigure`が`false`の場合のみ有効。|

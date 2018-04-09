@@ -5,7 +5,7 @@ import json
 import logging
 from src import channel
 
-def optimization(candleTerm, fileName):
+def optimization(candleTerm, cost, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
     rangeThAndrangeTerm = [(None,3),(5000,3),(10000,3),(None,5),(5000,5),(10000,5),(None,10),(5000,10),(10000,10),(None,15),(5000,15),(10000,15),(None,None)]
     waitTermAndwaitTh = [(0,0),(3,10000),(3,15000),(3,20000),(5,10000),(5,15000),(5,20000),(10,10000),(10,15000),(10,20000),(15,10000),(15,15000),(15,20000)]
@@ -28,6 +28,7 @@ def optimization(candleTerm, fileName):
                     channelBreakOut.rangePercentTerm = l[1]
                     channelBreakOut.fileName = fileName
                     channelBreakOut.candleTerm = candleTerm
+                    channelBreakOut.cost = cost
                     logging.info('================================')
                     logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm)
                     #テスト
@@ -69,4 +70,4 @@ if __name__ == '__main__':
     config = json.load(f)
 
     #最適化
-    optimization(candleTerm=config["candleTerm"], fileName=config["fileName"])
+    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"])
