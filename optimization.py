@@ -30,7 +30,7 @@ def optimization(candleTerm, cost, fileName):
                     channelBreakOut.candleTerm = candleTerm
                     channelBreakOut.cost = cost
                     logging.info('================================')
-                    logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm)
+                    logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s cost:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm,cost)
                     #テスト
                     pl, profitFactor =  channelBreakOut.describeResult()
                     paramList.append([pl,profitFactor, i,l,j,k])
