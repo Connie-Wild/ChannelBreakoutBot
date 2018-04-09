@@ -35,9 +35,8 @@ if __name__ == '__main__':
     channelBreakOut.waitTerm = config["waitTerm"]
     channelBreakOut.waitTh = config["waitTh"]
     channelBreakOut.candleTerm = config["candleTerm"]
-    channelBreakOut.cost = config["cost"]
-    channelBreakOut.fileName = config["fileName"]
-    channelBreakOut.showFigure = config["showFigure"]
+    channelBreakOut.fileName = None
+    channelBreakOut.showFigure = False
 
     #実働
     channelBreakOut.loop()
