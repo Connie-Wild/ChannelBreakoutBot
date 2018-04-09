@@ -49,7 +49,9 @@ class ChannelBreakOut:
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
         # グラフ表示
-        self.showFigure = True
+        self.showFigure = False
+        # バックテスト結果のグラフをLineで送る
+        self.sendFigure = False
         # optimization用のOHLCcsvファイル
         self.fileName = None
 
@@ -416,6 +418,31 @@ class ChannelBreakOut:
             plt.plot(df_candleStick.index, pl)
             plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
             plt.ylabel("PL(JPY)")
+        elif self.sendFigure:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            plt.figure()
+            plt.subplot(211)
+            plt.plot(df_candleStick.index, df_candleStick["high"])
+            plt.plot(df_candleStick.index, df_candleStick["low"])
+            plt.ylabel("Price(JPY)")
+            ymin = min(df_candleStick["low"]) - 200
+            ymax = max(df_candleStick["high"]) + 200
+            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
+            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
+            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
+            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
+            plt.subplot(212)
+            plt.plot(df_candleStick.index, pl)
+            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
+            plt.ylabel("PL(JPY)")
+            # save as png
+            today = datetime.datetime.now().strftime('%Y%m%d')
+            number = "_" + str(len(pl))
+            fileName = "png/" + today + number + ".png"
+            plt.savefig(fileName)
+            self.lineNotify("Result of backtest",fileName)
         else:
             pass
 
@@ -526,7 +553,7 @@ class ChannelBreakOut:
             # save as png
             today = datetime.datetime.now().strftime('%Y%m%d')
             number = "_" + str(len(pl))
-            fileName = today + number + ".png"
+            fileName = "png/" + today + number + ".png"
             plt.savefig(fileName)
             plt.close()
         except:
