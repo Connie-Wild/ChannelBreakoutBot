@@ -38,7 +38,6 @@ if __name__ == '__main__':
     channelBreakOut.waitTh = config["waitTh"]
     channelBreakOut.candleTerm = config["candleTerm"]
     channelBreakOut.fileName = None
-    channelBreakOut.showFigure = False
 
     #実働
     channelBreakOut.loop()

@@ -40,6 +40,7 @@ if __name__ == '__main__':
     channelBreakOut.cost = config["cost"]
     channelBreakOut.fileName = config["fileName"]
     channelBreakOut.showFigure = config["showFigure"]
+    channelBreakOut.sendFigure = config["sendFigure"]
 
     #バックテスト
     channelBreakOut.describeResult()

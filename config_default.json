@@ -15,5 +15,6 @@
     "candleTerm" : "5T",
     "cost" : 0,
     "fileName" : "chart.csv",
-    "showFigure" : true
+    "showFigure" : true,
+    "sendFigure" : false
 }
