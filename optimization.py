@@ -3,7 +3,7 @@
 
 import json
 import logging
-import channel
+from src import channel
 
 def optimization(candleTerm, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]

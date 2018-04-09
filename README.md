@@ -89,6 +89,9 @@ python3 backtest.py
 ```
 
 ## optimization
+別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。  
+自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。  
+
 for Windows 10 with Python 3.6.5
 ```bash
 python optimization.py
