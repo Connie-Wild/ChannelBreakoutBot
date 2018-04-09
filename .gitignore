@@ -1,9 +1,10 @@
 # directory
 tmp
-csv
 
-# log
+# user data
+*.json
 *.log
+*.csv
 
-# user local
-config.json
+# default config
+!/config_default.json
