@@ -67,7 +67,8 @@ git pull
 |healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
-|rangePercent|number/null|[option]entryTerm/closeTerm期間ぞれぞれの値幅の平均値を求め、rangePercentを掛けた値をentryTerm/closeTerm期間の高値/安値から加算/減算する。|
+|rangePercent|number/null|[option]下記参照|
+|rangePercentTerm|number/null|[option]rangePercentTerm期間の値幅の平均値を求め、rangePercentを掛けた値をentryTerm/closeTerm期間の高値/安値から加算/減算する。|
 |rangeTerm|number/null|[option]下記参照|
 |rangeTh|number/null|[option]レンジ相場でのエントリーを減らすために、rangeTerm期間の値幅(rangeTh)または価格の標準偏差の変動でレンジ相場の判定を行う。|
 |waitTerm|number|下記参照|
