@@ -48,6 +48,10 @@ class ChannelBreakOut:
         #ラインに稼働状況を通知
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
+        # グラフ表示
+        self.showFigure = True
+        # optimization用のOHLCcsvファイル
+        self.fileName = None
 
     @property
     def cost(self):
@@ -373,29 +377,29 @@ class ChannelBreakOut:
             plPerTrade.append(plRange*lot)
         return (pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade)
 
-    def describeResult(self, entryTerm, closeTerm, fileName=None, candleTerm=None, rangeTh=5000, rangeTerm=15, originalWaitTerm=10, waitTh=10000, showFigure=True, cost=0, rangePercent=None, rangePercentTerm=None):
+    def describeResult(self):
         """
         signalsは買い，売り，中立が入った配列
         """
-        if fileName == None:
-            if "H" in candleTerm:
+        if self.fileName == None:
+            if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getSpecifiedCandlestick(2000, "3600")
             else:
                 candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "60")
         else:
-            candleStick = self.readDataFromFile(fileName)
+            candleStick = self.readDataFromFile(self.fileName)
 
-        if candleTerm != None:
-            df_candleStick = self.processCandleStick(candleStick, candleTerm)
+        if self.candleTerm != None:
+            df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
         else:
             df_candleStick = self.fromListToDF(candleStick)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
-        judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, entryTerm)
-        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, rangeTh, rangeTerm, originalWaitTerm=originalWaitTerm, waitTh=waitTh, cost=cost)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
+        judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, self.entryTerm)
+        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
 
-        if showFigure:
+        if self.showFigure:
             import matplotlib.pyplot as plt
             plt.figure()
             plt.subplot(211)
@@ -427,13 +431,13 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade)
         maxLoss = min(plPerTrade)
 
-        logging.info('showFigure :%s',showFigure)
+        logging.info('showFigure :%s',self.showFigure)
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
         logging.info("The profitFactor: {}".format(profitFactor))
         logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
-        if showFigure:
+        if self.showFigure:
             plt.show()
         else:
             pass
@@ -529,7 +533,7 @@ class ChannelBreakOut:
             fileName = ""
         return fileName
 
-    def loop(self, entryTerm, closeTerm, rangeTh, rangeTerm, originalWaitTerm, waitTh, candleTerm=None, rangePercent=None, rangePercentTerm=None):
+    def loop(self):
         """
         注文の実行ループを回す関数
         """
@@ -545,20 +549,20 @@ class ChannelBreakOut:
         waitTerm = 0
 
         try:
-            if "H" in candleTerm:
+            if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getCandlestick(480, "3600")
             else:
                 candleStick = self.cryptowatch.getCandlestick(480, "60")
         except:
             logging.error("Unknown error happend when you requested candleStick")
 
-        if candleTerm == None:
+        if self.candleTerm == None:
             df_candleStick = self.fromListToDF(candleStick)
         else:
-            df_candleStick = self.processCandleStick(candleStick, candleTerm)
+            df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
 
-        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
-        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
+        entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+        closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
 
         #直近約定件数30件の高値と安値
         high = max([self.executions[-1-i]["price"] for i in range(30)])
@@ -578,20 +582,20 @@ class ChannelBreakOut:
                 exeTimer1 = exeMin + 1
                 logging.info("Renewing candleSticks")
                 try:
-                    if "H" in candleTerm:
+                    if "H" in self.candleTerm:
                         candleStick = self.cryptowatch.getCandlestick(480, "3600")
                     else:
                         candleStick = self.cryptowatch.getCandlestick(480, "60")
                 except:
                     logging.error("Unknown error happend when you requested candleStick")
 
-                if candleTerm == None:
+                if self.candleTerm == None:
                     df_candleStick = self.fromListToDF(candleStick)
                 else:
-                    df_candleStick = self.processCandleStick(candleStick, candleTerm)
+                    df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
 
-                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, entryTerm, rangePercent, rangePercentTerm)
-                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, closeTerm, rangePercent, rangePercentTerm)
+                entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
+                closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
             else:
                 pass
 
@@ -601,7 +605,7 @@ class ChannelBreakOut:
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
             #現在レンジ相場かどうか．
-            isRange = self.isRange(df_candleStick, rangeTerm, rangeTh)
+            isRange = self.isRange(df_candleStick, self.rangeTerm, self.rangeTh)
 
             #取引所のヘルスチェック
             boardState = self.order.getboardstate()
@@ -665,8 +669,8 @@ class ChannelBreakOut:
                     logging.info(message)
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
-                    if plRange > waitTh:
-                        waitTerm = originalWaitTerm
+                    if plRange > self.waitTh:
+                        waitTerm = self.waitTerm
                         lot = round(originalLot/10,3)
                     if waitTerm > 0:
                         waitTerm -= 1
@@ -691,7 +695,7 @@ class ChannelBreakOut:
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
                     if plRange > waitTh:
-                        waitTerm = originalWaitTerm
+                        waitTerm = self.waitTerm
                         lot = round(originalLot/10,3)
                     if waitTerm > 0:
                         waitTerm -= 1
