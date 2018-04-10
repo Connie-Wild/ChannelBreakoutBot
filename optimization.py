@@ -4,6 +4,7 @@
 import json
 import logging
 import time
+import itertools
 from src import channel
 from concurrent.futures import ProcessPoolExecutor
 
@@ -38,7 +39,7 @@ def optimization(candleTerm, cost, fileName):
 
     paramList = []
     params = []
-    for i, j, k, l in product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList):
+    for i, j, k, l in itertools.product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList):
         params.append([i, j, k, l, candleTerm, cost, fileName])
 
     # 同期処理
