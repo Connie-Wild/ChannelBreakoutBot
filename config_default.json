@@ -16,5 +16,6 @@
     "cost" : 0,
     "fileName" : "chart.csv",
     "showFigure" : true,
-    "sendFigure" : false
+    "sendFigure" : false,
+    "core" : null
 }
