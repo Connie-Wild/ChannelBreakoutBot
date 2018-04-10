@@ -3,7 +3,32 @@
 
 import json
 import logging
+import time
+import itertools
 from src import channel
+from concurrent.futures import ProcessPoolExecutor
+
+def describe(params):
+    i, j, k, l, candleTerm, cost, fileName = params
+
+    channelBreakOut = channel.ChannelBreakOut()
+    channelBreakOut.entryTerm = i[0]
+    channelBreakOut.closeTerm = i[1]
+    channelBreakOut.rangeTh = j[0]
+    channelBreakOut.rangeTerm = j[1]
+    channelBreakOut.waitTerm = k[0]
+    channelBreakOut.waitTh = k[1]
+    channelBreakOut.rangePercent = l[0]
+    channelBreakOut.rangePercentTerm = l[1]
+    channelBreakOut.candleTerm = candleTerm
+    channelBreakOut.cost = cost
+    channelBreakOut.fileName = fileName
+    # logging.info('================================')
+    # logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s cost:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm,cost)
+
+    #テスト
+    pl, profitFactor = channelBreakOut.describeResult()
+    return [pl, profitFactor, i, l, j, k]
 
 def optimization(candleTerm, cost, fileName):
     entryAndCloseTerm = [(2,2),(3,2),(2,3),(3,3),(4,2),(2,4),(4,3),(3,4),(4,4),(5,2),(2,5),(5,3),(3,5),(5,4),(4,5),(5,5),(10,10)]
@@ -13,27 +38,19 @@ def optimization(candleTerm, cost, fileName):
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
     paramList = []
-    for i in entryAndCloseTerm:
-        for j in rangeThAndrangeTerm:
-            for k in waitTermAndwaitTh:
-                for l in rangePercentList:
-                    channelBreakOut = channel.ChannelBreakOut()
-                    channelBreakOut.entryTerm = i[0]
-                    channelBreakOut.closeTerm = i[1]
-                    channelBreakOut.rangeTh = j[0]
-                    channelBreakOut.rangeTerm = j[1]
-                    channelBreakOut.waitTerm = k[0]
-                    channelBreakOut.waitTh = k[1]
-                    channelBreakOut.rangePercent = l[0]
-                    channelBreakOut.rangePercentTerm = l[1]
-                    channelBreakOut.fileName = fileName
-                    channelBreakOut.candleTerm = candleTerm
-                    channelBreakOut.cost = cost
-                    logging.info('================================')
-                    logging.info('[%s/%s] entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s cost:%s',len(paramList)+1,total,i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm,cost)
-                    #テスト
-                    pl, profitFactor =  channelBreakOut.describeResult()
-                    paramList.append([pl,profitFactor, i,l,j,k])
+    params = []
+    for i, j, k, l in itertools.product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList):
+        params.append([i, j, k, l, candleTerm, cost, fileName])
+
+    # 同期処理
+    # for param in params:
+    #     result = describe(param)
+    #     paramList.append(result)
+
+    # 非同期処理
+    with ProcessPoolExecutor() as executor:
+        for result in executor.map(describe, params):
+            paramList.append(result)
 
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
@@ -46,7 +63,7 @@ def optimization(candleTerm, cost, fileName):
     logging.info("PL max:")
     logging.info(paramList[pL.index(max(pL))])
     message = "Optimization finished.\n ProfitFactor max:{}\n PL max:{}".format(paramList[pF.index(max(pF))], paramList[pL.index(max(pL))])
-    channelBreakOut.lineNotify(message)
+    channel.ChannelBreakOut().lineNotify(message)
 
 if __name__ == '__main__':
     #logging設定
@@ -70,4 +87,6 @@ if __name__ == '__main__':
     config = json.load(f)
 
     #最適化
+    start = time.time()
     optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"])
+    logging.info('total processing time: %s', time.time() - start)
