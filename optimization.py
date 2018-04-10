@@ -56,7 +56,7 @@ def optimization(candleTerm, cost, fileName, core):
         with ProcessPoolExecutor(max_workers=core) as executor:
             for result in executor.map(describe, params):
                 paramList.append(result)
-                logging.info('[%s/%s]',len(paramList),total)
+                logging.info('[%s/%s] result:%s',len(paramList),total,paramList[-1])
 
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
