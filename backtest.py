@@ -41,6 +41,7 @@ if __name__ == '__main__':
     channelBreakOut.fileName = config["fileName"]
     channelBreakOut.showFigure = config["showFigure"]
     channelBreakOut.sendFigure = config["sendFigure"]
+    channelBreakOut.showTradeDetail = config["showTradeDetail"]
 
     #バックテスト
     channelBreakOut.describeResult()
