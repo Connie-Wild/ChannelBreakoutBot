@@ -17,5 +17,6 @@
     "fileName" : "chart.csv",
     "showFigure" : true,
     "sendFigure" : false,
-    "core" : null
+    "core" : null,
+    "showTradeDetail" : true
 }
