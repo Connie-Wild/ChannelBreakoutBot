@@ -80,7 +80,7 @@ git pull
 |showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 |sendFigure|true/false|バックテスト結果のグラフをLINE Notifyで通知する。`showFigure`が`false`の場合のみ有効。|
 |core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
-|showTradeDetail|true/false|バックテスト結果のとして、トレード履歴の詳細を表示する。|
+|showTradeDetail|true/false|バックテストの結果として、トレード履歴の詳細を表示する。|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  
