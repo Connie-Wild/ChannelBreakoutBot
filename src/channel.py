@@ -449,7 +449,10 @@ class ChannelBreakOut:
         #各統計量の計算および表示．
         winTrade = sum([1 for i in plPerTrade if i > 0])
         loseTrade = sum([1 for i in plPerTrade if i < 0])
-        winPer = round(winTrade/(winTrade+loseTrade) * 100,2)
+        try:
+            winPer = round(winTrade/(winTrade+loseTrade) * 100,2)
+        except:
+            winPer = 100
 
         winTotal = sum([i for i in plPerTrade if i > 0])
         loseTotal = sum([i for i in plPerTrade if i < 0])
@@ -458,8 +461,8 @@ class ChannelBreakOut:
         except:
             profitFactor = 10
 
-        maxProfit = max(plPerTrade)
-        maxLoss = min(plPerTrade)
+        maxProfit = max(plPerTrade, default=0)
+        maxLoss = min(plPerTrade, default=0)
 
         logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
