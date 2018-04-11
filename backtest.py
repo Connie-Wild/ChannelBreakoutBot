@@ -13,7 +13,7 @@ if __name__ == '__main__':
         datefmt='%m/%d/%Y %I:%M:%S %p')
     logfile=logging.handlers.TimedRotatingFileHandler(
         filename = 'log/backtest.log',
-        when = 'D'
+        when = 'midnight'
     )
     logfile.setLevel(logging.INFO)
     logfile.setFormatter(logging.Formatter(
