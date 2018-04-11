@@ -35,8 +35,9 @@ pip3 install -U pip setuptools
 pip3 install pybitflyer requests pandas pubnub tornado matplotlib
 ```
 4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
-5) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
-6) コンソールから起動
+5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
+6) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
+7) コンソールから起動
 
 for Windows 10 with Python 3.6.5
 ```bash
@@ -106,6 +107,16 @@ for ubuntu16.04 with Python 3.5.2
 ```bash
 python3 optimization.py
 ```
+## optimization用のパターンデータの用意
+設定は`optimizeList.json`ファイルで行います。
+
+### パターンデータ
+|Name|Values|Description|
+|----|------|-----------|
+|entryAndCloseTerm|number|[entryTerm,closeTerm]で指定。|
+|rangeThAndrangeTerm|number/null|[rangeTh,rangeTerm]で指定。|
+|waitTermAndwaitTh|number|[waitTerm,waitTh]で指定。|
+|rangePercentList|number/null|[rangePercent,rangePercentTerm]で指定。|
 
 ## optimization用のOHLCデータの取得
 コマンドライン引数に取得したい日付と取得時間足を指定する事が出来る。  
