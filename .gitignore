@@ -10,6 +10,6 @@ __pycache__
 *.png
 
 # default config
-!/config_default.json
+!*_default.json
 
 !.gitkeep
