@@ -28,7 +28,7 @@ class ChannelBreakOut:
         self.cryptowatch = cryptowatch.CryptoWatch()
         #pubnubから取得した約定履歴を保存するリスト（基本的に不要．）
         self._executions = deque(maxlen=300)
-        self._lot = 0.01
+        self._lot = 0.2
         self._product_code = config["product_code"]
         #各パラメタ．
         self._entryTerm = 10
