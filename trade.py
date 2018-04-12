@@ -10,15 +10,15 @@ if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p')
+        datefmt='%Y-%m-%d %H:%M:%S')
     logfile=logging.handlers.TimedRotatingFileHandler(
         filename = 'log/trade.log',
-        when = 'D'
+        when = 'midnight'
     )
     logfile.setLevel(logging.INFO)
     logfile.setFormatter(logging.Formatter(
         fmt='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%m/%d/%Y %I:%M:%S %p'))
+        datefmt='%Y-%m-%d %H:%M:%S'))
     logging.getLogger('').addHandler(logfile)
     logging.info('Wait...')
 
