@@ -646,8 +646,11 @@ class ChannelBreakOut:
                 else:
                     df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
 
+                #ラインの算出
                 entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
                 closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
+                #現在レンジ相場かどうか．
+                isRange = self.isRange(df_candleStick, self.rangeTerm, self.rangeTh)
             else:
                 pass
 
@@ -656,8 +659,6 @@ class ChannelBreakOut:
             low = min([self.executions[-1-i]["price"] for i in range(30)])
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
-            #現在レンジ相場かどうか．
-            isRange = self.isRange(df_candleStick, self.rangeTerm, self.rangeTh)
 
             #取引所のヘルスチェック
             boardState = self.order.getboardstate()
