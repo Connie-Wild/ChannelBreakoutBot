@@ -675,7 +675,8 @@ class ChannelBreakOut:
 
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
-            logging.info('entryHighLine:%s entryLowLine:%s closeHighLine:%s closeLowLine:%s', entryHighLine[-1], entryLowLine[-1], closeHighLine[-1], closeLowLine[-1])
+            logging.info('entryHighLine:%s entryLowLine:%s', entryHighLine[-1], entryLowLine[-1])
+            logging.info('closeHighLine:%s closeLowLine:%s', closeHighLine[-1], closeLowLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
                 logging.info("position : Long")
