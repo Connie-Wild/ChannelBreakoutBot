@@ -630,7 +630,7 @@ class ChannelBreakOut:
             logging.info('================================')
             exeMin = datetime.datetime.now().minute
             #1分ごとに基準ラインを更新
-            if exeMin + 1 > exeTimer1 or (exeMin == 0 and exeTimer1 == 60):
+            if exeMin + 1 > exeTimer1 or exeMin + 1 < exeTimer1:
                 exeTimer1 = exeMin + 1
                 logging.info("Renewing candleSticks")
                 try:
@@ -663,12 +663,15 @@ class ChannelBreakOut:
             #取引所のヘルスチェック
             boardState = self.order.getboardstate()
             serverHealth = True
-            permitHealth = ["NORMAL", "BUSY", "VERY BUSY"]
-            if (boardState["health"] in permitHealth) and boardState["state"] == "RUNNING" and self.healthCheck:
+            permitHealth1 = ["NORMAL", "BUSY", "VERY BUSY"]
+            permitHealth2 = ["NORMAL", "BUSY", "VERY BUSY", "SUPER BUSY"]
+            if (boardState["health"] in permitHealth1) and boardState["state"] == "RUNNING" and self.healthCheck:
                 pass
-            elif self.healthCheck:
+            elif (boardState["health"] in permitHealth2) and boardState["state"] == "RUNNING" and not self.healthCheck:
+                pass
+            else:
                 serverHealth = False
-                logging.info('Server is %s. Do not order.', boardState["health"],)
+                logging.info('Server is %s/%s. Do not order.', boardState["health"], boardState["state"])
 
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
@@ -781,8 +784,8 @@ class ChannelBreakOut:
                     logging.info(message)
                     lastPositionPrice = best_bid
 
-            if (exeMin + 1 > exeTimer5 or (exeMin == 0 and exeTimer5 == 60)) and exeMin % 5 == 0:
-                exeTimer5 = exeMin + 5
+            if (exeMin + 1 > exeTimer5 or exeMin + 1 < exeTimer5) and exeMin % 5 == 0:
+                exeTimer5 = exeMin + 1
                 message = "Waiting for channelbreaking."
                 logging.info(message)
 
