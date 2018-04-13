@@ -18,7 +18,7 @@ else:
     targetDate = ''
 
 http = urllib3.PoolManager()
-url = 'https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc?after=1'
+url = 'https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc?after=1&periods=' + periods
 resp = json.loads(http.request('GET', url).data.decode('utf-8'))['result'][periods]
 for r in resp:
     date = str(datetime.datetime.fromtimestamp(r[0]))
