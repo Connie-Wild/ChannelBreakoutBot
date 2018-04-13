@@ -23,7 +23,7 @@ from . import cryptowatch
 class ChannelBreakOut:
     def __init__(self):
         #config.jsonの読み込み
-        f = open('config.json', 'r')
+        f = open('config.json', 'r', encoding="utf-8")
         config = json.load(f)
         self.cryptowatch = cryptowatch.CryptoWatch()
         #pubnubから取得した約定履歴を保存するリスト（基本的に不要．）
