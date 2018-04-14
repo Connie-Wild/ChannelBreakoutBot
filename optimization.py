@@ -25,7 +25,7 @@ def describe(params):
     channelBreakOut.fileName = fileName
     if core == 1:
         logging.info('================================')
-        logging.info('entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s cost:%s',i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],candleTerm,cost)
+        logging.info('entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s',i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1])
     else:
         pass
 
