@@ -35,7 +35,7 @@ def describe(params):
 
 def optimization(candleTerm, cost, fileName, core):
     #optimizeList.jsonの読み込み
-    f = open('optimizeList.json', 'r')
+    f = open('optimizeList.json', 'r', encoding="utf-8")
     config = json.load(f)
     entryAndCloseTerm = config["entryAndCloseTerm"]
     rangeThAndrangeTerm = config["rangeThAndrangeTerm"]
@@ -66,7 +66,7 @@ def optimization(candleTerm, cost, fileName, core):
     logging.info("======Optimization finished======")
     logging.info('Search pattern :%s', len(paramList))
     logging.info("Parameters:")
-    logging.info("(entryTerm, closeTerm), (rangePercent, rangePercentTerm), (rangeTh, rangeTerm), (waitTerm, waitTh)")
+    logging.info("[entryTerm, closeTerm], [rangePercent, rangePercentTerm], [rangeTh, rangeTerm], [waitTerm, waitTh]")
     logging.info("ProfitFactor max:")
     logging.info(paramList[pF.index(max(pF))])
     logging.info("PL max:")
@@ -92,8 +92,9 @@ if __name__ == '__main__':
     logging.info('Wait...')
 
     #config.jsonの読み込み
-    f = open('config.json', 'r')
+    f = open('config.json', 'r', encoding="utf-8")
     config = json.load(f)
+    logging.info('candleTerm:%s cost:%s core:%s fileName:%s',config["candleTerm"],config["cost"],config["core"],config["fileName"])
 
     #最適化
     start = time.time()
