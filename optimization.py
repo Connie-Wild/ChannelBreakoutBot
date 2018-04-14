@@ -74,6 +74,55 @@ def optimization(candleTerm, cost, fileName, core):
     message = "Optimization finished.\n ProfitFactor max:{}\n PL max:{}".format(paramList[pF.index(max(pF))], paramList[pL.index(max(pL))])
     channel.ChannelBreakOut().lineNotify(message)
 
+    #config.json設定用ログ
+    print("*********PF max*********")
+    print("PL", paramList[pF.index(max(pF))][0])
+    print("PF", paramList[pF.index(max(pF))][1])
+    print("    \"entryTerm\" : ", paramList[pF.index(max(pF))][2][0], ",", sep="")
+    print("    \"closeTerm\" : ", paramList[pF.index(max(pF))][2][1], ",", sep="")
+    if paramList[pF.index(max(pF))][3][0] is None:
+        print("    \"rangePercent\" : ", "null,", sep="")
+    else:
+        print("    \"rangePercent\" : ", paramList[pF.index(max(pF))][3][0], ",", sep="")
+    if paramList[pF.index(max(pF))][3][1] is None:
+        print("    \"rangePercentTerm\" : ", "null,", sep="")
+    else:
+        print("    \"rangePercentTerm\" : ", paramList[pF.index(max(pF))][3][1], ",", sep="")
+    if paramList[pF.index(max(pF))][4][1] is None:
+        print("    \"rangeTerm\" : ", "null,", sep="")
+    else:
+        print("    \"rangeTerm\" : ", paramList[pF.index(max(pF))][4][1], ",", sep="")
+    if paramList[pF.index(max(pF))][4][0] is None:
+        print("    \"rangeTh\" : ", "null,", sep="")
+    else:
+        print("    \"rangeTh\" : ", paramList[pF.index(max(pF))][4][0], ",", sep="")
+    print("    \"waitTerm\" : ", paramList[pF.index(max(pF))][5][0], ",", sep="")
+    print("    \"waitTh\" : ", paramList[pF.index(max(pF))][5][1], ",", sep="")
+
+    print("*********PL max*********")
+    print("PL", paramList[pL.index(max(pL))][0])
+    print("PF", paramList[pL.index(max(pL))][1])
+    print("    \"entryTerm\" : ", paramList[pL.index(max(pL))][2][0], ",", sep="")
+    print("    \"closeTerm\" : ", paramList[pL.index(max(pL))][2][1], ",", sep="")
+    if paramList[pL.index(max(pL))][3][0] is None:
+        print("    \"rangePercent\" : ", "null,", sep="")
+    else:
+        print("    \"rangePercent\" : ", paramList[pL.index(max(pL))][3][0], ",", sep="")
+    if paramList[pL.index(max(pL))][3][1] is None:
+        print("    \"rangePercentTerm\" : ", "null,", sep="")
+    else:
+        print("    \"rangePercentTerm\" : ", paramList[pL.index(max(pL))][3][1], ",", sep="")
+    if paramList[pL.index(max(pL))][4][1] is None:
+        print("    \"rangeTerm\" : ", "null,", sep="")
+    else:
+        print("    \"rangeTerm\" : ", paramList[pL.index(max(pL))][4][1], ",", sep="")
+    if paramList[pL.index(max(pL))][4][0] is None:
+        print("    \"rangeTh\" : ", "null,", sep="")
+    else:
+        print("    \"rangeTh\" : ", paramList[pL.index(max(pL))][4][0], ",", sep="")
+    print("    \"waitTerm\" : ", paramList[pL.index(max(pL))][5][0], ",", sep="")
+    print("    \"waitTh\" : ", paramList[pL.index(max(pL))][5][1], ",", sep="")
+
 if __name__ == '__main__':
     #logging設定
     logging.basicConfig(
