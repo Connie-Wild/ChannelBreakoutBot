@@ -26,6 +26,7 @@ for Windows 10 with Python 3.6.5
 cd ChannelBreakoutBot
 pip install -U pip setuptools
 pip install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
+pip install networkx==1.11
 ```
 for ubuntu16.04 with Python 3.5.2
 ```bash
@@ -33,6 +34,7 @@ cd ChannelBreakoutBot
 apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
 pip3 install -U pip setuptools
 pip3 install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
+pip3 install networkx==1.11
 ```
 4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
 5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
