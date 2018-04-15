@@ -25,14 +25,14 @@ for Windows 10 with Python 3.6.5
 ```bash
 cd ChannelBreakoutBot
 pip install -U pip setuptools
-pip install pybitflyer requests pandas pubnub tornado matplotlib
+pip install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
 ```
 for ubuntu16.04 with Python 3.5.2
 ```bash
 cd ChannelBreakoutBot
 apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
 pip3 install -U pip setuptools
-pip3 install pybitflyer requests pandas pubnub tornado matplotlib
+pip3 install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
 ```
 4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
 5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
@@ -80,8 +80,9 @@ git pull
 |fileName|string/null|バックテストおよび、optimizationで使用するOHLCデータのファイル名を指定する。デフォルトは`chart.csv`。指定が無い場合は都度取得する。|
 |showFigure|true/false|バックテスト実行時にグラフを表示するか選択。コマンドラインのみの環境では`false`にして下さい。|
 |sendFigure|true/false|バックテスト結果のグラフをLINE Notifyで通知する。`showFigure`が`false`の場合のみ有効。|
-|core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
 |showTradeDetail|true/false|バックテストの結果として、トレード履歴の詳細を表示する。|
+|core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
+|hyperopt|number|機械学習によるoptimizationにて試行するテスト数を指定する。|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  
@@ -100,6 +101,7 @@ python3 backtest.py
 別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。  
 `fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。(都度取得すると時間がかかる上に同じOHLCデータでの比較が出来ないので`fileName`の指定をする事をオススメします。)  
 自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。  
+パターンデータには`optimizeList.json`を利用する。 
 
 for Windows 10 with Python 3.6.5
 ```bash
@@ -109,6 +111,20 @@ for ubuntu16.04 with Python 3.5.2
 ```bash
 python3 optimization.py
 ```
+
+## 機械学習によるoptimization
+hyperoptを用いてTree-structured Parzen Estimator Approach（TPE）ロジックによる最適値の算出を試みる。  
+パターンデータには`optimizeList.json`を利用する。
+
+for Windows 10 with Python 3.6.5
+```bash
+python machineLearning.py
+```
+for ubuntu16.04 with Python 3.5.2
+```bash
+python3 machineLearning.py
+```
+
 ## optimization用のパターンデータの用意
 設定は`optimizeList.json`ファイルで行います。
 
