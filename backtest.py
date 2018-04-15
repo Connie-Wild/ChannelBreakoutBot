@@ -28,7 +28,6 @@ if __name__ == '__main__':
 
     #channelBreakOut設定値
     channelBreakOut = channel.ChannelBreakOut()
-    channelBreakOut.lot = config["lotSize"]
     channelBreakOut.entryTerm = config["entryTerm"]
     channelBreakOut.closeTerm = config["closeTerm"]
     channelBreakOut.rangePercent = config["rangePercent"]
