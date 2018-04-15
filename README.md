@@ -66,7 +66,7 @@ git pull
 |secret|string|取引所APIのシークレット|
 |line_notify_token|string|[LINE Notify](https://notify-bot.line.me/ja/)による通知を行う場合に、トークンを設定。|
 |healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
-|lotSize|number|注文するBTCの数量を指定する。最低値かつ推奨値は0.01。<br>[※注意※]この数値を大きくすればする程、損益と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
+|lotSize|number|注文するBTCの数量を指定する。最低値かつ推奨値は0.01。<br>[※注意※]この数値を大きくすればする程、損失と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
 |rangePercent|number/null|[option]下記参照|
