@@ -98,6 +98,7 @@ def optimization(candleTerm, cost, fileName, core):
         print("    \"rangeTh\" : ", paramList[pF.index(max(pF))][4][0], ",", sep="")
     print("    \"waitTerm\" : ", paramList[pF.index(max(pF))][5][0], ",", sep="")
     print("    \"waitTh\" : ", paramList[pF.index(max(pF))][5][1], ",", sep="")
+    print("    \"candleTerm\" : \"", candleTerm, "\",", sep="")
 
     print("*********PL max*********")
     print("PL", paramList[pL.index(max(pL))][0])
@@ -122,6 +123,7 @@ def optimization(candleTerm, cost, fileName, core):
         print("    \"rangeTh\" : ", paramList[pL.index(max(pL))][4][0], ",", sep="")
     print("    \"waitTerm\" : ", paramList[pL.index(max(pL))][5][0], ",", sep="")
     print("    \"waitTh\" : ", paramList[pL.index(max(pL))][5][1], ",", sep="")
+    print("    \"candleTerm\" : \"", candleTerm, "\",", sep="")
 
 if __name__ == '__main__':
     #logging設定

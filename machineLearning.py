@@ -101,6 +101,7 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
         print("    \"rangeTh\" : ", channelBreakOut.rangeTh, ",", sep="")
     print("    \"waitTerm\" : ", channelBreakOut.waitTerm, ",", sep="")
     print("    \"waitTh\" : ", channelBreakOut.waitTh, ",", sep="")
+    print("    \"candleTerm\" : \"", channelBreakOut.candleTerm, "\",", sep="")
     print("==================")
 
 if __name__ == '__main__':
