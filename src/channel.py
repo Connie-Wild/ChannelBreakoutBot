@@ -37,6 +37,8 @@ class ChannelBreakOut:
         self._rangeTh = 5000
         self._waitTerm = 5
         self._waitTh = 20000
+        self.rangePercent = 0.0
+        self.rangePercentTerm = 0
         self._candleTerm = "1T"
         #現在のポジション．1ならロング．-1ならショート．0ならポジションなし．
         self._pos = 0
