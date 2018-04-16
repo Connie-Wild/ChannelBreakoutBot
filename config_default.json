@@ -18,6 +18,7 @@
     "fileName" : "chart.csv",
     "showFigure" : true,
     "sendFigure" : false,
+    "showTradeDetail" : true,
     "core" : null,
-    "showTradeDetail" : true
+    "hyperopt" : 1000
 }
