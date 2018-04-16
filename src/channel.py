@@ -493,7 +493,7 @@ class ChannelBreakOut:
             plt.show()
         else:
             pass
-        return pl[-1], profitFactor
+        return pl[-1], profitFactor, maxLoss, winPer
 
     def fromListToDF(self, candleStick):
         """
