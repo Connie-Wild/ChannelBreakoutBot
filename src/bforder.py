@@ -29,7 +29,7 @@ class BFOrder:
             except:
                 pass
             logging.debug(response)
-            time.sleep(3)
+            time.sleep(0.5)
         return response
 
     def market(self, side, size, minute_to_expire= None):
@@ -39,14 +39,14 @@ class BFOrder:
             response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
         except:
             pass
-        logging.debug(response)
+        logging.info(response)
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
             logging.debug(response)
-            time.sleep(3)
+            time.sleep(0.5)
         return response
 
     def ticker(self):
@@ -62,6 +62,7 @@ class BFOrder:
             except:
                 pass
             logging.debug(response)
+            time.sleep(0.5)
         return response
 
     def getexecutions(self, order_id):
@@ -110,7 +111,7 @@ class BFOrder:
             except:
                 pass
             logging.debug(response)
-            time.sleep(3)
+            time.sleep(0.5)
         return response
 
     def stop_limit(self, side, size, trigger_price, price, minute_to_expire=None):
