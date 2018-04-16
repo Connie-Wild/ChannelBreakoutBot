@@ -20,5 +20,6 @@
     "sendFigure" : false,
     "showTradeDetail" : true,
     "core" : null,
-    "hyperopt" : 1000
+    "hyperopt" : 1000,
+    "mlMode" : "PL"
 }
