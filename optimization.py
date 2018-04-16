@@ -30,7 +30,7 @@ def describe(params):
         pass
 
     #テスト
-    pl, profitFactor = channelBreakOut.describeResult()
+    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
     return [pl, profitFactor, i, l, j, k]
 
 def optimization(candleTerm, cost, fileName, core):
