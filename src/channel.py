@@ -493,7 +493,7 @@ class ChannelBreakOut:
             plt.show()
         else:
             pass
-        return pl[-1], profitFactor
+        return pl[-1], profitFactor, maxLoss, winPer
 
     def fromListToDF(self, candleStick):
         """
@@ -679,9 +679,9 @@ class ChannelBreakOut:
             logging.info('closeHighLine:%s closeLowLine:%s', closeHighLine[-1], closeLowLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
-                logging.info("position : Long")
+                logging.info('position : Long(Price:%s)',lastPositionPrice)
             elif pos == -1:
-                logging.info("position : Short")
+                logging.info('position : Short(Price:%s)',lastPositionPrice)
             else:
                 logging.info("position : None")
 
