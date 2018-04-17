@@ -37,8 +37,8 @@ class ChannelBreakOut:
         self._rangeTh = 5000
         self._waitTerm = 5
         self._waitTh = 20000
-        self.rangePercent = 0.0
-        self.rangePercentTerm = 0
+        self.rangePercent = None
+        self.rangePercentTerm = None
         self._candleTerm = "1T"
         #現在のポジション．1ならロング．-1ならショート．0ならポジションなし．
         self._pos = 0
@@ -644,7 +644,7 @@ class ChannelBreakOut:
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
             logging.info('entryHighLine:%s entryLowLine:%s', entryHighLine[-1], entryLowLine[-1])
-            logging.info('closeHighLine:%s closeLowLine:%s', closeHighLine[-1], closeLowLine[-1])
+            logging.info('closeLowLine:%s closeHighLine:%s', closeLowLine[-1], closeHighLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
                 logging.info('position : Long(Price:%s)',lastPositionPrice)
