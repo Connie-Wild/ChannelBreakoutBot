@@ -472,9 +472,10 @@ class ChannelBreakOut:
         priceHigh = [int(price[2]) for price in candleStick]
         priceLow = [int(price[3]) for price in candleStick]
         priceClose = [int(price[4]) for price in candleStick]
+        volume = [int(price[5]) for price in candleStick]
         date_datetime = map(datetime.datetime.fromtimestamp, date)
         dti = pd.DatetimeIndex(date_datetime)
-        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose}, index=dti)
+        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose, "volume" : volume}, index=dti)
         return df_candleStick
 
     def processCandleStick(self, candleStick, timeScale):
@@ -482,7 +483,7 @@ class ChannelBreakOut:
         1分足データから各時間軸のデータを作成.timeScaleには5T（5分），H（1時間）などの文字列を入れる
         """
         df_candleStick = self.fromListToDF(candleStick)
-        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last'})
+        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last',"volume" : "sum"})
         processed_candleStick = processed_candleStick.dropna()
         return processed_candleStick
 
