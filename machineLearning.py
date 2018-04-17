@@ -10,24 +10,24 @@ from hyperopt import fmin, tpe, hp
 def describe(params):
     i, j, k, l, candleTerm, cost, mlMode, fileName = params
 
-    cbo = channel.ChannelBreakOut()
-    cbo.entryTerm = i[0]
-    cbo.closeTerm = i[1]
-    cbo.rangeTh = j[0]
-    cbo.rangeTerm = j[1]
-    cbo.waitTerm = k[0]
-    cbo.waitTh = k[1]
-    cbo.rangePercent = l[0]
-    cbo.rangePercentTerm = l[1]
-    cbo.candleTerm = candleTerm
-    cbo.cost = cost
-    cbo.fileName = fileName
+    channelBreakOut = channel.ChannelBreakOut()
+    channelBreakOut.entryTerm = i[0]
+    channelBreakOut.closeTerm = i[1]
+    channelBreakOut.rangeTh = j[0]
+    channelBreakOut.rangeTerm = j[1]
+    channelBreakOut.waitTerm = k[0]
+    channelBreakOut.waitTh = k[1]
+    channelBreakOut.rangePercent = l[0]
+    channelBreakOut.rangePercentTerm = l[1]
+    channelBreakOut.candleTerm = candleTerm
+    channelBreakOut.cost = cost
+    channelBreakOut.fileName = fileName
     #formatStr = "entryT\t%s closeT\t%s rangeP\t%s rangePT\t%s rangeT\t%s rangeTh\t%s waitT\t%s waitTh\t%s"
     formatStr = "Pattern: %s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"
     #logging.info("===========Test pattern===========")
-    logging.info(formatStr,cbo.entryTerm,cbo.closeTerm,cbo.rangePercent,cbo.rangePercentTerm\
-    ,cbo.rangeTerm,cbo.rangeTh,cbo.waitTerm,cbo.waitTh)
-    pl, profitFactor, maxLoss, winPer = cbo.describeResult()
+    logging.info(formatStr,channelBreakOut.entryTerm,channelBreakOut.closeTerm,channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm\
+    ,channelBreakOut.rangeTerm,channelBreakOut.rangeTh,channelBreakOut.waitTerm,channelBreakOut.waitTh)
+    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
     if "PL" in mlMode:
         result = -pl
     elif "PF" in mlMode:
