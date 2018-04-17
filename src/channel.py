@@ -476,12 +476,12 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
 
-        logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
-        logging.info("Total pl: {}JPY".format(int(pl[-1])))
-        logging.info("The number of Trades: {}".format(nOfTrade))
-        logging.info("The Winning percentage: {}%".format(winPer))
-        logging.info("The profitFactor: {}".format(profitFactor))
-        logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
+        logging.debug('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
+        logging.info("Result: {}".format(int(pl[-1]))\
+        +"\t{}".format(nOfTrade)\
+        +"\t{}%".format(winPer)\
+        +"\t{}".format(profitFactor)\
+        +"\t{}, {}".format(int(maxProfit), int(maxLoss)))
         if self.showTradeDetail:
             logging.info("==Trade detail==")
             for log in tradeLog:

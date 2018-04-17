@@ -10,25 +10,24 @@ from hyperopt import fmin, tpe, hp
 def describe(params):
     i, j, k, l, candleTerm, cost, mlMode, fileName = params
 
-    channelBreakOut = channel.ChannelBreakOut()
-    channelBreakOut.entryTerm = i[0]
-    channelBreakOut.closeTerm = i[1]
-    channelBreakOut.rangeTh = j[0]
-    channelBreakOut.rangeTerm = j[1]
-    channelBreakOut.waitTerm = k[0]
-    channelBreakOut.waitTh = k[1]
-    channelBreakOut.rangePercent = l[0]
-    channelBreakOut.rangePercentTerm = l[1]
-    channelBreakOut.candleTerm = candleTerm
-    channelBreakOut.cost = cost
-    channelBreakOut.fileName = fileName
-    logging.info("===========Test pattern===========")
-    logging.info('entryTerm:%s closeTerm:%s',channelBreakOut.entryTerm,channelBreakOut.closeTerm)
-    logging.info('rangePercent:%s rangePercentTerm:%s',channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm)
-    logging.info('rangeTerm:%s rangeTh:%s',channelBreakOut.rangeTerm,channelBreakOut.rangeTh)
-    logging.info('waitTerm:%s waitTh:%s',channelBreakOut.waitTerm,channelBreakOut.waitTh)
-    logging.info("===========Backtest===========")
-    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+    cbo = channel.ChannelBreakOut()
+    cbo.entryTerm = i[0]
+    cbo.closeTerm = i[1]
+    cbo.rangeTh = j[0]
+    cbo.rangeTerm = j[1]
+    cbo.waitTerm = k[0]
+    cbo.waitTh = k[1]
+    cbo.rangePercent = l[0]
+    cbo.rangePercentTerm = l[1]
+    cbo.candleTerm = candleTerm
+    cbo.cost = cost
+    cbo.fileName = fileName
+    #formatStr = "entryT\t%s closeT\t%s rangeP\t%s rangePT\t%s rangeT\t%s rangeTh\t%s waitT\t%s waitTh\t%s"
+    formatStr = "Pattern: %s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"
+    #logging.info("===========Test pattern===========")
+    logging.info(formatStr,cbo.entryTerm,cbo.closeTerm,cbo.rangePercent,cbo.rangePercentTerm\
+    ,cbo.rangeTerm,cbo.rangeTh,cbo.waitTerm,cbo.waitTh)
+    pl, profitFactor, maxLoss, winPer = cbo.describeResult()
     if "PL" in mlMode:
         result = -pl
     elif "PF" in mlMode:
@@ -38,7 +37,6 @@ def describe(params):
     elif "WIN" in mlMode:
         result = -winPer
     
-    logging.info("===========Assessment===========")
     return result
 
 def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
