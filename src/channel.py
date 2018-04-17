@@ -416,46 +416,15 @@ class ChannelBreakOut:
         pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
 
         if self.showFigure:
-            import matplotlib.pyplot as plt
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(df_candleStick.index, df_candleStick["high"])
-            plt.plot(df_candleStick.index, df_candleStick["low"])
-            plt.ylabel("Price(JPY)")
-            ymin = min(df_candleStick["low"]) - 200
-            ymax = max(df_candleStick["high"]) + 200
-            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
-            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
-            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
-            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
-            plt.subplot(212)
-            plt.plot(df_candleStick.index, pl)
-            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
-            plt.ylabel("PL(JPY)")
+            from src import candle_plot
+            candle_plot.show(df_candleStick, pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals)
         elif self.sendFigure:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(df_candleStick.index, df_candleStick["high"])
-            plt.plot(df_candleStick.index, df_candleStick["low"])
-            plt.ylabel("Price(JPY)")
-            ymin = min(df_candleStick["low"]) - 200
-            ymax = max(df_candleStick["high"]) + 200
-            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
-            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
-            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
-            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
-            plt.subplot(212)
-            plt.plot(df_candleStick.index, pl)
-            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
-            plt.ylabel("PL(JPY)")
+            from src import candle_plot
             # save as png
             today = datetime.datetime.now().strftime('%Y%m%d')
             number = "_" + str(len(pl))
             fileName = "png/" + today + number + ".png"
-            plt.savefig(fileName)
+            candle_plot.save(df_candleStick, pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, fileName)
             self.lineNotify("Result of backtest",fileName)
         else:
             pass
@@ -491,10 +460,6 @@ class ChannelBreakOut:
                 logging.info("%s %s %s %s", log[0], log[1], log[2], profit)
             logging.info("============")
 
-        if self.showFigure:
-            plt.show()
-        else:
-            pass
         return pl[-1], profitFactor
 
     def fromListToDF(self, candleStick):
