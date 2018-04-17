@@ -460,7 +460,7 @@ class ChannelBreakOut:
                 logging.info("%s %s %s %s", log[0], log[1], log[2], profit)
             logging.info("============")
 
-        return pl[-1], profitFactor
+        return pl[-1], profitFactor, maxLoss, winPer
 
     def fromListToDF(self, candleStick):
         """
@@ -773,7 +773,7 @@ class ChannelBreakOut:
 
         config = PNConfiguration()
         config.subscribe_key = 'sub-c-52a9ab50-291b-11e5-baaa-0619f8945a4f'
-        config.reconnect_policy = PNReconnectionPolicy.LINEAR
+        config.reconnect_policy = PNReconnectionPolicy.EXPONENTIAL
         config.ssl = False
         config.set_presence_timeout(60)
         pubnub = PubNubTornado(config)
