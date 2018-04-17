@@ -448,6 +448,7 @@ class ChannelBreakOut:
         maxLoss = min(plPerTrade, default=0)
 
         logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
+        logging.info('Period: %s > %s', df_candleStick.index[0], df_candleStick.index[-1])
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
