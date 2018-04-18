@@ -442,7 +442,7 @@ class ChannelBreakOut:
         try:
             profitFactor = round(winTotal/-loseTotal, 3)
         except:
-            profitFactor = 10
+            profitFactor = float("inf")
 
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
