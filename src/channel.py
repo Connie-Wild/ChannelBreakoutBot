@@ -442,7 +442,7 @@ class ChannelBreakOut:
         try:
             profitFactor = round(winTotal/-loseTotal, 3)
         except:
-            profitFactor = 10
+            profitFactor = float("inf")
 
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
@@ -568,6 +568,10 @@ class ChannelBreakOut:
         lot = self.lot
         originalLot = self.lot
         waitTerm = 0
+
+        # 証拠金の状態を取得
+        collateral = self.order.getcollateral()
+        logging.info('collateral:%s', collateral["collateral"])
 
         try:
             if "H" in self.candleTerm:
