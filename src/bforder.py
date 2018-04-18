@@ -145,3 +145,19 @@ class BFOrder:
                 pass
             logging.debug(response)
         return response
+
+    def getcollateral(self):
+        response = {"status": "internalError in order.py"}
+        try:
+            response = self.api.getcollateral()
+        except:
+            pass
+        logging.debug(response)
+        while "status" in response:
+            try:
+                response = self.api.getcollateral()
+            except:
+                pass
+            logging.info(response)
+            time.sleep(0.5)
+        return response
