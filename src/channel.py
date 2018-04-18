@@ -569,6 +569,10 @@ class ChannelBreakOut:
         originalLot = self.lot
         waitTerm = 0
 
+        # 証拠金の状態を取得
+        collateral = self.order.getcollateral()
+        logging.info('collateral:%s', collateral["collateral"])
+
         try:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getCandlestick(480, "3600")
