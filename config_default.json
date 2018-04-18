@@ -21,5 +21,6 @@
     "showTradeDetail" : true,
     "core" : null,
     "hyperopt" : 1000,
-    "mlMode" : "PL"
+    "mlMode" : "PL",
+    "useBlackList" : true
 }

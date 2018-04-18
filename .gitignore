@@ -11,5 +11,6 @@ __pycache__
 
 # default config
 !*_default.json
+!*_default.csv
 
 !.gitkeep
