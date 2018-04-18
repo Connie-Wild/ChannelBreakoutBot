@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/16  
+README更新日 2018/4/18  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -38,8 +38,9 @@ pip3 install networkx==1.11
 ```
 4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
 5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
-6) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
-7) コンソールから起動
+6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム
+7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
+8) コンソールから起動
 
 for Windows 10 with Python 3.6.5
 ```bash
@@ -68,7 +69,7 @@ git pull
 |secret|string|取引所APIのシークレット|
 |line_notify_token|string|[LINE Notify](https://notify-bot.line.me/ja/)による通知を行う場合に、トークンを設定。|
 |healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
-|lotSize|number|注文するBTCの数量を指定する。最低値かつ推奨値は0.01。<br>[※注意※]この数値を大きくすればする程、損失と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
+|lotSize|number|注文するBTCの数量を指定する。APIからの最小発注単位が0.01BTCになりました(2018/4/25)。wait機能で1/10のロットになるため、最低値かつ推奨値は0.1。<br>[※注意※]この数値を大きくすればする程、損失と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
 |rangePercent|number/null|[option]下記参照|
@@ -85,7 +86,8 @@ git pull
 |showTradeDetail|true/false|バックテストの結果として、トレード履歴の詳細を表示する。|
 |core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
 |hyperopt|number|機械学習によるoptimizationにて試行するテスト数を指定する。|
-|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率|
+|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率 PFDD:PFの二乗+DD|
+|useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  

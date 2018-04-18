@@ -40,12 +40,17 @@ class BFOrder:
         except:
             pass
         logging.info(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 20:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
@@ -144,4 +149,20 @@ class BFOrder:
             except:
                 pass
             logging.debug(response)
+        return response
+
+    def getcollateral(self):
+        response = {"status": "internalError in order.py"}
+        try:
+            response = self.api.getcollateral()
+        except:
+            pass
+        logging.debug(response)
+        while "status" in response:
+            try:
+                response = self.api.getcollateral()
+            except:
+                pass
+            logging.info(response)
+            time.sleep(0.5)
         return response

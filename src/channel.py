@@ -37,6 +37,8 @@ class ChannelBreakOut:
         self._rangeTh = 5000
         self._waitTerm = 5
         self._waitTh = 20000
+        self.rangePercent = None
+        self.rangePercentTerm = None
         self._candleTerm = "1T"
         #現在のポジション．1ならロング．-1ならショート．0ならポジションなし．
         self._pos = 0
@@ -414,46 +416,15 @@ class ChannelBreakOut:
         pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
 
         if self.showFigure:
-            import matplotlib.pyplot as plt
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(df_candleStick.index, df_candleStick["high"])
-            plt.plot(df_candleStick.index, df_candleStick["low"])
-            plt.ylabel("Price(JPY)")
-            ymin = min(df_candleStick["low"]) - 200
-            ymax = max(df_candleStick["high"]) + 200
-            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
-            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
-            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
-            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
-            plt.subplot(212)
-            plt.plot(df_candleStick.index, pl)
-            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
-            plt.ylabel("PL(JPY)")
+            from src import candle_plot
+            candle_plot.show(df_candleStick, pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals)
         elif self.sendFigure:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-            plt.figure()
-            plt.subplot(211)
-            plt.plot(df_candleStick.index, df_candleStick["high"])
-            plt.plot(df_candleStick.index, df_candleStick["low"])
-            plt.ylabel("Price(JPY)")
-            ymin = min(df_candleStick["low"]) - 200
-            ymax = max(df_candleStick["high"]) + 200
-            plt.vlines(buyEntrySignals, ymin , ymax, "blue", linestyles='dashed', linewidth=1)
-            plt.vlines(sellEntrySignals, ymin , ymax, "red", linestyles='dashed', linewidth=1)
-            plt.vlines(buyCloseSignals, ymin , ymax, "black", linestyles='dashed', linewidth=1)
-            plt.vlines(sellCloseSignals, ymin , ymax, "green", linestyles='dashed', linewidth=1)
-            plt.subplot(212)
-            plt.plot(df_candleStick.index, pl)
-            plt.hlines(y=0, xmin=df_candleStick.index[0], xmax=df_candleStick.index[-1], colors='k', linestyles='dashed')
-            plt.ylabel("PL(JPY)")
+            from src import candle_plot
             # save as png
             today = datetime.datetime.now().strftime('%Y%m%d')
             number = "_" + str(len(pl))
             fileName = "png/" + today + number + ".png"
-            plt.savefig(fileName)
+            candle_plot.save(df_candleStick, pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, fileName)
             self.lineNotify("Result of backtest",fileName)
         else:
             pass
@@ -471,7 +442,7 @@ class ChannelBreakOut:
         try:
             profitFactor = round(winTotal/-loseTotal, 3)
         except:
-            profitFactor = 10
+            profitFactor = float("inf")
 
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
@@ -489,10 +460,6 @@ class ChannelBreakOut:
                 logging.info("%s %s %s %s", log[0], log[1], log[2], profit)
             logging.info("============")
 
-        if self.showFigure:
-            plt.show()
-        else:
-            pass
         return pl[-1], profitFactor, maxLoss, winPer
 
     def fromListToDF(self, candleStick):
@@ -504,9 +471,10 @@ class ChannelBreakOut:
         priceHigh = [int(price[2]) for price in candleStick]
         priceLow = [int(price[3]) for price in candleStick]
         priceClose = [int(price[4]) for price in candleStick]
+        volume = [int(price[5]) for price in candleStick]
         date_datetime = map(datetime.datetime.fromtimestamp, date)
         dti = pd.DatetimeIndex(date_datetime)
-        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose}, index=dti)
+        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose, "volume" : volume}, index=dti)
         return df_candleStick
 
     def processCandleStick(self, candleStick, timeScale):
@@ -514,7 +482,7 @@ class ChannelBreakOut:
         1分足データから各時間軸のデータを作成.timeScaleには5T（5分），H（1時間）などの文字列を入れる
         """
         df_candleStick = self.fromListToDF(candleStick)
-        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last'})
+        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last',"volume" : "sum"})
         processed_candleStick = processed_candleStick.dropna()
         return processed_candleStick
 
@@ -600,6 +568,10 @@ class ChannelBreakOut:
         originalLot = self.lot
         waitTerm = 0
 
+        # 証拠金の状態を取得
+        collateral = self.order.getcollateral()
+        logging.info('collateral:%s', collateral["collateral"])
+
         try:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getCandlestick(480, "3600")
@@ -676,7 +648,7 @@ class ChannelBreakOut:
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
             logging.info('entryHighLine:%s entryLowLine:%s', entryHighLine[-1], entryLowLine[-1])
-            logging.info('closeHighLine:%s closeLowLine:%s', closeHighLine[-1], closeLowLine[-1])
+            logging.info('closeLowLine:%s closeHighLine:%s', closeLowLine[-1], closeHighLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
                 logging.info('position : Long(Price:%s)',lastPositionPrice)

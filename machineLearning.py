@@ -28,7 +28,10 @@ def describe(params):
     logging.info(formatStr,channelBreakOut.entryTerm,channelBreakOut.closeTerm,channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm\
     ,channelBreakOut.rangeTerm,channelBreakOut.rangeTh,channelBreakOut.waitTerm,channelBreakOut.waitTh)
     pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
-    if "PL" in mlMode:
+
+    if "PFDD" in mlMode:
+        result = -(profitFactor ** 2 + maxLoss)
+    elif "PL" in mlMode:
         result = -pl
     elif "PF" in mlMode:
         result = -profitFactor
@@ -36,7 +39,8 @@ def describe(params):
         result = -maxLoss
     elif "WIN" in mlMode:
         result = -winPer
-    
+
+    logging.info("===========Assessment===========")
     return result
 
 def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
