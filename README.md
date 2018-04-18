@@ -38,8 +38,9 @@ pip3 install networkx==1.11
 ```
 4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
 5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
-6) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
-7) コンソールから起動
+6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム
+7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
+8) コンソールから起動
 
 for Windows 10 with Python 3.6.5
 ```bash
@@ -68,7 +69,7 @@ git pull
 |secret|string|取引所APIのシークレット|
 |line_notify_token|string|[LINE Notify](https://notify-bot.line.me/ja/)による通知を行う場合に、トークンを設定。|
 |healthCheck|true/false|取引所のステータスがNORMALとBUSYとVERY BUSY以外の場合、オープンオーダを行わない。(損切りが出来るようにクローズオーダは行う)|
-|lotSize|number|注文するBTCの数量を指定する。最低値かつ推奨値は0.01。<br>[※注意※]この数値を大きくすればする程、損失と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
+|lotSize|number|注文するBTCの数量を指定する。APIからの最小発注単位が0.01BTCになりました(2018/4/25)。wait機能で1/10のロットになるため、最低値かつ推奨値は0.1。<br>[※注意※]この数値を大きくすればする程、損失と利益の幅が大きくなるため全財産溶かす事になる可能性も上がります。|
 |entryTerm|number|entryTerm期間高値/安値を更新したらオープンシグナル点灯|
 |closeTerm|number|closeTerm期間、オープン方向と逆に高値/安値を更新したらクローズシグナル点灯|
 |rangePercent|number/null|[option]下記参照|
