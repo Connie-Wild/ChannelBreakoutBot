@@ -1,15 +1,20 @@
 #_*_ coding: utf-8 _*_
 #https://sshuhei.com
 
+import os.path
 import json
 import logging
 import time
 import itertools
+import pandas as pd
 from src import channel
 from concurrent.futures import ProcessPoolExecutor
 
+def eq(a, b):
+    return (a == b) | (pd.isnull(a) & pd.isnull(b))
+
 def describe(params):
-    i, j, k, l, candleTerm, cost, fileName, core = params
+    i, j, k, l, candleTerm, cost, fileName, core, useBlackList = params
 
     channelBreakOut = channel.ChannelBreakOut()
     channelBreakOut.entryTerm = i[0]
@@ -29,11 +34,30 @@ def describe(params):
     else:
         pass
 
-    #テスト
-    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
-    return [pl, profitFactor, i, l, j, k]
+    # ブラックリスト判定
+    is_blacklist = False
+    if useBlackList:
+        bl = read_blacklist()
+        co = bl.columns.values
+        is_blacklist = ((bl[co[0]] == candleTerm) &
+                        (eq(bl[co[1]], i[0])) &
+                        (eq(bl[co[2]], i[1])) &
+                        (eq(bl[co[3]], j[0])) &
+                        (eq(bl[co[4]], j[1])) &
+                        (eq(bl[co[5]], k[1])) &
+                        (eq(bl[co[6]], k[0])) &
+                        (eq(bl[co[7]], l[0])) &
+                        (eq(bl[co[8]], l[1]))).any()
 
-def optimization(candleTerm, cost, fileName, core):
+    if is_blacklist:
+        pl = 0
+        profitFactor = 0
+    else:
+        #テスト
+        pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+    return [pl, profitFactor, i, l, j, k, is_blacklist]
+
+def optimization(candleTerm, cost, fileName, core, useBlackList):
     #optimizeList.jsonの読み込み
     f = open('optimizeList.json', 'r', encoding="utf-8")
     config = json.load(f)
@@ -46,8 +70,9 @@ def optimization(candleTerm, cost, fileName, core):
     paramList = []
     params = []
     for i, j, k, l in itertools.product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList):
-        params.append([i, j, k, l, candleTerm, cost, fileName, core])
+        params.append([i, j, k, l, candleTerm, cost, fileName, core, useBlackList])
 
+    black_list = read_blacklist()
     if core == 1:
         # 同期処理
         for param in params:
@@ -58,8 +83,16 @@ def optimization(candleTerm, cost, fileName, core):
         # 非同期処理
         with ProcessPoolExecutor(max_workers=core) as executor:
             for result in executor.map(describe, params):
+                skiped = '(skip)' if result[6] == True else ''
                 paramList.append(result)
-                logging.info('[%s/%s] result:%s',len(paramList),total,paramList[-1])
+                logging.info('[%s/%s] result%s:%s',len(paramList),total,skiped,paramList[-1])
+                # ブラックリスト追加
+                if (useBlackList == True) & (result[0] < 0) & (result[6] == False):
+                    new_bl = pd.DataFrame(
+                        [[candleTerm, result[2][0], result[2][1], result[4][0], result[4][1], result[5][1], result[5][0], result[3][0], result[3][0]]], columns=black_list.columns.values)
+                    black_list = black_list.append(new_bl)
+    # ブラックリスト書き込み
+    if useBlackList: black_list.to_csv('blacklist.csv', index=False, sep=',')
 
     pF = [i[1] for i in paramList]
     pL = [i[0] for i in paramList]
@@ -125,6 +158,12 @@ def optimization(candleTerm, cost, fileName, core):
     print("    \"waitTh\" : ", paramList[pL.index(max(pL))][5][1], ",", sep="")
     print("    \"candleTerm\" : \"", candleTerm, "\",", sep="")
 
+def read_blacklist():
+    if os.path.exists('blacklist.csv'):
+        return pd.read_csv('blacklist.csv', header=0, sep=',')
+    else:
+        return pd.read_csv('blacklist_default.csv', header=0, sep=',')
+
 if __name__ == '__main__':
     #logging設定
     logging.basicConfig(
@@ -149,5 +188,5 @@ if __name__ == '__main__':
 
     #最適化
     start = time.time()
-    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"], core=config["core"])
+    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"], core=config["core"], useBlackList=config["useBlackList"])
     logging.info('total processing time: %s', time.time() - start)
