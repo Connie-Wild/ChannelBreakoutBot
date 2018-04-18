@@ -40,12 +40,16 @@ class BFOrder:
         except:
             pass
         logging.info(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
+            retry += 1
             logging.debug(response)
+            if retry > 20:
+                logging.error(response)
             time.sleep(0.5)
         return response
 
