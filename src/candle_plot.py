@@ -18,18 +18,26 @@ def plot(df_candleStick, plofits, buy_entry_signals, sell_entry_signals, buy_clo
     import matplotlib as mpl
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
-    from .mpl_finance import candlestick2_ohlc
+    from .mpl_finance import candlestick2_ohlc, volume_overlay
 
     df = df_candleStick
     # グラフ生成(figsize=グラフサイズx,y)
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(12, 8))
     fig.autofmt_xdate()
     fig.tight_layout()
     # 1つ目のグラフ(ローソク足)
     ax = plt.subplot(2, 1, 1)
     # ローソク足描画
-    candlestick2_ohlc(ax, df["open"], df["high"], df["low"], df["close"],
-                      width=0.7, colorup="b", colordown="r")
+    candlestick2_ohlc(ax, df["open"], df["high"], df["low"], df["close"], width=0.7, colorup="b", colordown="r")
+    # 描画幅の設定
+    bottom, top = ax.get_ylim()
+    ax.set_ylim(bottom - (top - bottom) / 5, top)
+    # 出来高の描画
+    ax_v = ax.twinx()
+    volume_overlay(ax_v, df["open"], df["close"], df["volume"], width=0.7, colorup="g", colordown="g")
+    ax_v.set_xlim([0, df.shape[0]])
+    ax_v.set_ylim([0, df["volume"].max() * 4])
+    ax_v.set_ylabel("Volume")
     # X軸調整
     xdate = [i.strftime('%y-%m-%d %H:%M') for i in df.index]
 

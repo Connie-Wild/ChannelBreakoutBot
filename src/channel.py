@@ -37,8 +37,8 @@ class ChannelBreakOut:
         self._rangeTh = 5000
         self._waitTerm = 5
         self._waitTh = 20000
-        self.rangePercent = 0.0
-        self.rangePercentTerm = 0
+        self.rangePercent = None
+        self.rangePercentTerm = None
         self._candleTerm = "1T"
         #現在のポジション．1ならロング．-1ならショート．0ならポジションなし．
         self._pos = 0
@@ -448,6 +448,7 @@ class ChannelBreakOut:
         maxLoss = min(plPerTrade, default=0)
 
         logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
+        logging.info('Period: %s > %s', df_candleStick.index[0], df_candleStick.index[-1])
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
@@ -471,9 +472,10 @@ class ChannelBreakOut:
         priceHigh = [int(price[2]) for price in candleStick]
         priceLow = [int(price[3]) for price in candleStick]
         priceClose = [int(price[4]) for price in candleStick]
+        volume = [int(price[5]) for price in candleStick]
         date_datetime = map(datetime.datetime.fromtimestamp, date)
         dti = pd.DatetimeIndex(date_datetime)
-        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose}, index=dti)
+        df_candleStick = pd.DataFrame({"open" : priceOpen, "high" : priceHigh, "low": priceLow, "close" : priceClose, "volume" : volume}, index=dti)
         return df_candleStick
 
     def processCandleStick(self, candleStick, timeScale):
@@ -481,7 +483,7 @@ class ChannelBreakOut:
         1分足データから各時間軸のデータを作成.timeScaleには5T（5分），H（1時間）などの文字列を入れる
         """
         df_candleStick = self.fromListToDF(candleStick)
-        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last'})
+        processed_candleStick = df_candleStick.resample(timeScale).agg({'open': 'first','high': 'max','low': 'min','close': 'last',"volume" : "sum"})
         processed_candleStick = processed_candleStick.dropna()
         return processed_candleStick
 
@@ -643,7 +645,7 @@ class ChannelBreakOut:
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
             logging.info('entryHighLine:%s entryLowLine:%s', entryHighLine[-1], entryLowLine[-1])
-            logging.info('closeHighLine:%s closeLowLine:%s', closeHighLine[-1], closeLowLine[-1])
+            logging.info('closeLowLine:%s closeHighLine:%s', closeLowLine[-1], closeHighLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
                 logging.info('position : Long(Price:%s)',lastPositionPrice)
