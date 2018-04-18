@@ -47,9 +47,10 @@ class BFOrder:
             except:
                 pass
             retry += 1
-            logging.debug(response)
             if retry > 20:
                 logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
