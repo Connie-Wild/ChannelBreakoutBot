@@ -56,10 +56,10 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
     waitTermAndwaitTh = config["waitTermAndwaitTh"]
     rangePercentList = config["rangePercentList"]
     linePattern = config["linePattern"]
-    randomUpper = config["randomUpper"]
+    termUpper = config["termUpper"]
 
-    if "R" in linePattern:
-        entryAndCloseTerm = list(itertools.product(range(2,randomUpper), range(2,randomUpper)))
+    if "COMB" in linePattern:
+        entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
 
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
