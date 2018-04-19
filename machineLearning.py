@@ -29,7 +29,7 @@ def describe(params):
     logging.info('rangeTerm:%s rangeTh:%s',channelBreakOut.rangeTerm,channelBreakOut.rangeTh)
     logging.info('waitTerm:%s waitTh:%s',channelBreakOut.waitTerm,channelBreakOut.waitTh)
     logging.info("===========Backtest===========")
-    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+    pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
 
     if "PFDD" in mlMode:
         result = -(profitFactor ** 2 + maxLoss)
@@ -41,6 +41,8 @@ def describe(params):
         result = -maxLoss
     elif "WIN" in mlMode:
         result = -winPer
+    elif "EV" in mlMode:
+        result = -ev
 
     logging.info("===========Assessment===========")
     return result
