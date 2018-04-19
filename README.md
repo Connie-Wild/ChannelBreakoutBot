@@ -136,6 +136,8 @@ python3 machineLearning.py
 ### パターンデータ
 |Name|Values|Description|
 |----|------|-----------|
+|linePattern|string|F:`entryAndCloseTerm`のパターンを使用。<br>R:2から`randomUpper`までの正数の組み合わせを自動生成し、[entryTerm,closeTerm]のパターンとして使用。|
+|randomUpper|number|2以上で指定。|
 |entryAndCloseTerm|number|[entryTerm,closeTerm]で指定。|
 |rangeThAndrangeTerm|number/null|[rangeTh,rangeTerm]で指定。|
 |waitTermAndwaitTh|number|[waitTerm,waitTh]で指定。|
