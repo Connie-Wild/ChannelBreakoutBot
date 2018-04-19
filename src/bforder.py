@@ -17,24 +17,29 @@ class BFOrder:
 
     def limit(self, side, price, size, minute_to_expire=None):
         logging.info("Order: Limit. Side : {}".format(side))
-        response = {"status":"internalError in order.py"}
+        response = {"status":"internalError in bforder.py"}
         try:
             response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
         except:
             pass
         logging.debug(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.sendchildorder(product_code=self.product_code, child_order_type="LIMIT", side=side, price=price, size=size, minute_to_expire = minute_to_expire)
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 20:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
     def market(self, side, size, minute_to_expire= None):
         logging.info("Order: Market. Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.sendchildorder(product_code=self.product_code, child_order_type="MARKET", side=side, size=size, minute_to_expire = minute_to_expire)
         except:
@@ -55,73 +60,93 @@ class BFOrder:
         return response
 
     def ticker(self):
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.ticker(product_code=self.product_code)
         except:
             pass
         logging.debug(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.ticker(product_code=self.product_code)
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 20:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
     def getexecutions(self, order_id):
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
         except:
             pass
         logging.debug(response)
+        retry = 0
         while ("status" in response or not response):
             try:
                 response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 500:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
     def getboardstate(self):
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.getboardstate(product_code=self.product_code)
         except:
             pass
         logging.debug(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.getboardstate(product_code=self.product_code)
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 20:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
     def stop(self, side, size, trigger_price, minute_to_expire=None):
         logging.info("Order: Stop. Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
         except:
             pass
         logging.debug(response)
+        retry = 0
         while "status" in response:
             try:
                 response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP", "side": side, "size": size,"trigger_price": trigger_price, "minute_to_expire": minute_to_expire}])
             except:
                 pass
-            logging.debug(response)
+            retry += 1
+            if retry > 20:
+                logging.error(response)
+            else:
+                logging.debug(response)
             time.sleep(0.5)
         return response
 
     def stop_limit(self, side, size, trigger_price, price, minute_to_expire=None):
         logging.info("Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "STOP_LIMIT", "side": side, "size": size,"trigger_price": trigger_price, "price": price, "minute_to_expire": minute_to_expire}])
         except:
@@ -137,7 +162,7 @@ class BFOrder:
 
     def trailing(self, side, size, offset, minute_to_expire=None):
         logging.info("Side : {}".format(side))
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.sendparentorder(order_method="SIMPLE", parameters=[{"product_code": self.product_code, "condition_type": "TRAIL", "side": side, "size": size, "offset": offset, "minute_to_expire": minute_to_expire}])
         except:
@@ -152,7 +177,7 @@ class BFOrder:
         return response
 
     def getcollateral(self):
-        response = {"status": "internalError in order.py"}
+        response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.getcollateral()
         except:
