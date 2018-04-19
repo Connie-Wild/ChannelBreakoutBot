@@ -450,11 +450,25 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
 
+        try:
+            winAve = winTotal / winTrade
+        except:
+            winAve = 0
+
+        try:
+            loseAve = loseTotal / loseTrade
+        except:
+            loseAve = 0
+
+        winDec = winPer / 100
+        ev = round(winDec * winAve + (1-winDec) * loseAve, 3)
+
         logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
         logging.info('Period: %s > %s', df_candleStick.index[0], df_candleStick.index[-1])
         logging.info("Total pl: {}JPY".format(int(pl[-1])))
         logging.info("The number of Trades: {}".format(nOfTrade))
         logging.info("The Winning percentage: {}%".format(winPer))
+        logging.info("Expected value: {}".format(ev))
         logging.info("The profitFactor: {}".format(profitFactor))
         logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
         if self.showTradeDetail:
@@ -464,7 +478,7 @@ class ChannelBreakOut:
                 logging.info("%s %s %s %s", log[0], log[1], log[2], profit)
             logging.info("============")
 
-        return pl[-1], profitFactor, maxLoss, winPer
+        return pl[-1], profitFactor, maxLoss, winPer, ev
 
     def fromListToDF(self, candleStick):
         """

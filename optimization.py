@@ -54,7 +54,7 @@ def describe(params):
         profitFactor = 0
     else:
         #テスト
-        pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+        pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
     return [pl, profitFactor, i, l, j, k, is_blacklist]
 
 def optimization(candleTerm, cost, fileName, core, useBlackList):
