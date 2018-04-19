@@ -155,10 +155,10 @@ class ChannelBreakOut:
         return round(lot,2)
 
     # 約定履歴ファイル
-    def writeorderhistory(self, price, lot, range, pos):
+    def writeorderhistory(self, priceOrderd, lotOrderd, profitRange, currentPos):
         with open('log/orderhistory.log', 'a') as orderhistoryfile:
             orderhistorycsv = csv.writer(orderhistoryfile, lineterminator='\n')
-            orderhistorycsv.writerow([datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), price, lot, range, pos])
+            orderhistorycsv.writerow([datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), priceOrderd, lotOrderd, profitRange, currentPos ])
 
     def calculateLines(self, df_candleStick, term, rangePercent, rangePercentTerm):
         """
