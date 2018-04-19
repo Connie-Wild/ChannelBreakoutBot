@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/19  
+README更新日 2018/4/20  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -86,7 +86,7 @@ git pull
 |showTradeDetail|true/false|バックテストの結果として、トレード履歴の詳細を表示する。|
 |core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
 |hyperopt|number|機械学習によるoptimizationにて試行するテスト数を指定する。|
-|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率 PFDD:PFの二乗+DD EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
+|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率 PFDD:PFの二乗+DD <br>EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
 |useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
 
 ## バックテスト
