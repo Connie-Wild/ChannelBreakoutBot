@@ -4,6 +4,7 @@
 import json
 import logging
 import time
+import itertools
 from src import channel
 from hyperopt import fmin, tpe, hp
 
@@ -22,12 +23,13 @@ def describe(params):
     channelBreakOut.candleTerm = candleTerm
     channelBreakOut.cost = cost
     channelBreakOut.fileName = fileName
-    #formatStr = "entryT\t%s closeT\t%s rangeP\t%s rangePT\t%s rangeT\t%s rangeTh\t%s waitT\t%s waitTh\t%s"
-    formatStr = "Pattern: %s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"
-    #logging.info("===========Test pattern===========")
-    logging.info(formatStr,channelBreakOut.entryTerm,channelBreakOut.closeTerm,channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm\
-    ,channelBreakOut.rangeTerm,channelBreakOut.rangeTh,channelBreakOut.waitTerm,channelBreakOut.waitTh)
-    pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+    logging.info("===========Test pattern===========")
+    logging.info('entryTerm:%s closeTerm:%s',channelBreakOut.entryTerm,channelBreakOut.closeTerm)
+    logging.info('rangePercent:%s rangePercentTerm:%s',channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm)
+    logging.info('rangeTerm:%s rangeTh:%s',channelBreakOut.rangeTerm,channelBreakOut.rangeTh)
+    logging.info('waitTerm:%s waitTh:%s',channelBreakOut.waitTerm,channelBreakOut.waitTh)
+    logging.info("===========Backtest===========")
+    pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
 
     if "PFDD" in mlMode:
         result = -(profitFactor ** 2 + maxLoss)
@@ -39,6 +41,8 @@ def describe(params):
         result = -maxLoss
     elif "WIN" in mlMode:
         result = -winPer
+    elif "EV" in mlMode:
+        result = -ev
 
     logging.info("===========Assessment===========")
     return result
@@ -51,6 +55,12 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
     rangeThAndrangeTerm = config["rangeThAndrangeTerm"]
     waitTermAndwaitTh = config["waitTermAndwaitTh"]
     rangePercentList = config["rangePercentList"]
+    linePattern = config["linePattern"]
+    termUpper = config["termUpper"]
+
+    if "COMB" in linePattern:
+        entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
+
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
     logging.info('Total pattern:%s Searches:%s',total,hyperopt)

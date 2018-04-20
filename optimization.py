@@ -54,7 +54,7 @@ def describe(params):
         profitFactor = 0
     else:
         #テスト
-        pl, profitFactor, maxLoss, winPer = channelBreakOut.describeResult()
+        pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
     return [pl, profitFactor, i, l, j, k, is_blacklist]
 
 def optimization(candleTerm, cost, fileName, core, useBlackList):
@@ -65,6 +65,12 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
     rangeThAndrangeTerm = config["rangeThAndrangeTerm"]
     waitTermAndwaitTh = config["waitTermAndwaitTh"]
     rangePercentList = config["rangePercentList"]
+    linePattern = config["linePattern"]
+    termUpper = config["termUpper"]
+
+    if "COMB" in linePattern:
+        entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
+
     total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
 
     paramList = []

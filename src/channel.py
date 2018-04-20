@@ -238,16 +238,16 @@ class ChannelBreakOut:
         for i in range(len(df_candleStick.index)):
             #上抜けでエントリー
             if df_candleStick["high"][i] > entryHighLine[i] and i >= entryTerm:
-                judgement[i][0] = (df_candleStick["high"][i] + entryHighLine[i]) / 2
+                judgement[i][0] = round((df_candleStick["high"][i] + entryHighLine[i]*2) / 3)
             #下抜けでエントリー
             if df_candleStick["low"][i] < entryLowLine[i] and i >= entryTerm:
-                judgement[i][1] = (df_candleStick["low"][i] + entryLowLine[i]) / 2
+                judgement[i][1] = round((df_candleStick["low"][i] + entryLowLine[i]*2) / 3)
             #下抜けでクローズ
             if df_candleStick["low"][i] < closeLowLine[i] and i >= entryTerm:
-                judgement[i][2] = (df_candleStick["low"][i] + closeLowLine[i]) / 2
+                judgement[i][2] = round((df_candleStick["low"][i] + closeLowLine[i]*2) / 3)
             #上抜けでクローズ
             if df_candleStick["high"][i] > closeHighLine[i] and i >= entryTerm:
-                judgement[i][3] = (df_candleStick["high"][i] + closeHighLine[i]) / 2
+                judgement[i][3] = round((df_candleStick["high"][i] + closeHighLine[i]*2) / 3)
             else:
                 pass
         return judgement
@@ -450,12 +450,27 @@ class ChannelBreakOut:
         maxProfit = max(plPerTrade, default=0)
         maxLoss = min(plPerTrade, default=0)
 
-        logging.debug('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
-        logging.info("Result: {}".format(int(pl[-1]))\
-        +"\t{}".format(nOfTrade)\
-        +"\t{}%".format(winPer)\
-        +"\t{}".format(profitFactor)\
-        +"\t{}, {}".format(int(maxProfit), int(maxLoss)))
+        try:
+            winAve = winTotal / winTrade
+        except:
+            winAve = 0
+
+        try:
+            loseAve = loseTotal / loseTrade
+        except:
+            loseAve = 0
+
+        winDec = winPer / 100
+        ev = round(winDec * winAve + (1-winDec) * loseAve, 3)
+
+        logging.info('showFigure :%s, sendFigure :%s',self.showFigure, self.sendFigure)
+        logging.info('Period: %s > %s', df_candleStick.index[0], df_candleStick.index[-1])
+        logging.info("Total pl: {}JPY".format(int(pl[-1])))
+        logging.info("The number of Trades: {}".format(nOfTrade))
+        logging.info("The Winning percentage: {}%".format(winPer))
+        logging.info("Expected value: {}".format(ev))
+        logging.info("The profitFactor: {}".format(profitFactor))
+        logging.info("The maximum Profit and Loss: {}JPY, {}JPY".format(maxProfit, maxLoss))
         if self.showTradeDetail:
             logging.info("==Trade detail==")
             for log in tradeLog:
@@ -463,7 +478,7 @@ class ChannelBreakOut:
                 logging.info("%s %s %s %s", log[0], log[1], log[2], profit)
             logging.info("============")
 
-        return pl[-1], profitFactor, maxLoss, winPer
+        return pl[-1], profitFactor, maxLoss, winPer, ev
 
     def fromListToDF(self, candleStick):
         """
