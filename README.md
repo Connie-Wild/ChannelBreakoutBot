@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/20  
+README更新日 2018/4/21  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -88,6 +88,7 @@ git pull
 |hyperopt|number|機械学習によるoptimizationにて試行するテスト数を指定する。|
 |mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率 PFDD:PFの二乗+DD <br>EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
 |useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
+|keepPosition|true/false|`true`の場合、前回終了時のポジションを引き継ぐ|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  
