@@ -632,8 +632,11 @@ class ChannelBreakOut:
         closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
 
         #直近約定件数30件の高値と安値
-        high = max([self.executions[-1-i]["price"] for i in range(30)])
-        low = min([self.executions[-1-i]["price"] for i in range(30)])
+        try:
+            high = max([self.executions[-1-i]["price"] for i in range(30)])
+            low = min([self.executions[-1-i]["price"] for i in range(30)])
+        except:
+            logging.error("Pubnub connection error")
 
         message = "Starting for channelbreak."
         logging.info(message)
@@ -670,8 +673,12 @@ class ChannelBreakOut:
                 pass
 
             #直近約定件数30件の高値と安値
-            high = max([self.executions[-1-i]["price"] for i in range(30)])
-            low = min([self.executions[-1-i]["price"] for i in range(30)])
+            try:
+                high = max([self.executions[-1-i]["price"] for i in range(30)])
+                low = min([self.executions[-1-i]["price"] for i in range(30)])
+            except:
+                logging.error("Pubnub connection error")
+
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
 
