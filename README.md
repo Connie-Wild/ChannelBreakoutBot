@@ -12,6 +12,7 @@ Commercial use is strictly prohibited.
 </font>
 
 ## インストール方法
+※Anacondaによる環境構築は非推奨です。  
 1) [python3](https://www.python.org/) をインストール
 2) ターミナルからgitリポジトリをクローン
 
@@ -51,6 +52,9 @@ for ubuntu16.04 with Python 3.5.2
 python3 trade.py
 ```
 
+### bitflyerAPIの権限設定
+下記の通り、許可を与えて下さい。
+![permission](png/api_permission.png)
 ## 最新版へのアップデート方法
 
 インストールフォルダでコンソールから以下を実行。
