@@ -1,0 +1,9 @@
+pybitflyer
+requests
+pandas
+pubnub
+tornado
+matplotlib
+hyperopt
+pip-review
+networkx==1.11
