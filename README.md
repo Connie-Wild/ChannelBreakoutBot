@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/21  
+README更新日 2018/4/22  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -25,17 +25,13 @@ git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
 for Windows 10 with Python 3.6.5
 ```bash
 cd ChannelBreakoutBot
-pip install -r requirements.txt
-pip-review --auto
-pip install networkx==1.11
+pip install -U -r requirements.txt
 ```
 for ubuntu16.04 with Python 3.5.2
 ```bash
 cd ChannelBreakoutBot
 apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
-pip3 install -r requirements.txt
-pip-review --auto
-pip3 install networkx==1.11
+pip3 install -U -r requirements.txt
 ```
 4) configフォルダ内の`config_default.json`を`config.json`にリネーム
 5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
