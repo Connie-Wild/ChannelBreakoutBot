@@ -22,5 +22,6 @@
     "core" : null,
     "hyperopt" : 1000,
     "mlMode" : "PL",
-    "useBlackList" : true
+    "useBlackList" : true,
+    "keepPosition" : false
 }

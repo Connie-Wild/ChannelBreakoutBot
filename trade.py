@@ -4,6 +4,7 @@
 import json
 import logging
 from src import channel
+import os
 
 if __name__ == '__main__':
     #logging設定
@@ -39,6 +40,13 @@ if __name__ == '__main__':
     channelBreakOut.waitTh = config["waitTh"]
     channelBreakOut.candleTerm = config["candleTerm"]
     channelBreakOut.fileName = None
+
+    # 約定履歴ファイルを引き継がない場合は削除
+    if config["keepPosition"]==False :
+        try:
+            os.remove( 'log/orderhistory.log' )
+        except:
+            pass
 
     #実働
     channelBreakOut.loop()
