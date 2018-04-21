@@ -5,5 +5,7 @@ pubnub
 tornado
 matplotlib
 hyperopt
-pip-review
+urllib3
+numpy
+six
 networkx==1.11
