@@ -422,7 +422,7 @@ class ChannelBreakOut:
         entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
         closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
         judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, self.entryTerm)
-        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
+        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, self.waitTerm, self.waitTh, self.cost)
 
         if self.showFigure:
             from src import candle_plot
