@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # 約定履歴ファイルを引き継がない場合は削除
     if config["keepPosition"]==False :
         try:
-            os.remove( 'log/orderhistory.log' )
+            os.remove( 'log/orderhistory.csv' )
         except:
             pass
 

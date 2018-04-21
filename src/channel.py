@@ -156,7 +156,7 @@ class ChannelBreakOut:
 
     # 約定履歴ファイル
     def writeorderhistory(self, priceOrderd, lotOrderd, profitRange, currentPos):
-        with open('log/orderhistory.log', 'a') as orderhistoryfile:
+        with open('log/orderhistory.csv', 'a') as orderhistoryfile:
             orderhistorycsv = csv.writer(orderhistoryfile, lineterminator='\n')
             orderhistorycsv.writerow([datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), priceOrderd, lotOrderd, profitRange, currentPos ])
 
@@ -598,7 +598,7 @@ class ChannelBreakOut:
 
         # 約定履歴ファイルの復元
         try:
-            with open('log/orderhistory.log', 'r') as orderhistoryfile:
+            with open('log/orderhistory.csv', 'r') as orderhistoryfile:
                 orderhistorycsv = csv.reader(orderhistoryfile)
                 for row in orderhistorycsv:
                     orderhistory=row
