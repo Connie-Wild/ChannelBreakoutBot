@@ -23,7 +23,7 @@ if __name__ == '__main__':
     logging.info('Wait...')
 
     #config.jsonの読み込み
-    f = open('config.json', 'r', encoding="utf-8")
+    f = open('config/config.json', 'r', encoding="utf-8")
     config = json.load(f)
 
     #channelBreakOut設定値

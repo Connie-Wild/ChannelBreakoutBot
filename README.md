@@ -37,8 +37,8 @@ pip3 install -r requirements.txt
 pip-review --auto
 pip3 install networkx==1.11
 ```
-4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
-5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
+4) configフォルダ内の`config_default.json`を`config.json`にリネーム
+5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
 6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム
 7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
 8) コンソールから起動
