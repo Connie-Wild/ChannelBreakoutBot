@@ -23,7 +23,7 @@ from . import cryptowatch
 class ChannelBreakOut:
     def __init__(self):
         #config.jsonの読み込み
-        f = open('config.json', 'r', encoding="utf-8")
+        f = open('config/config.json', 'r', encoding="utf-8")
         config = json.load(f)
         self.cryptowatch = cryptowatch.CryptoWatch()
         #pubnubから取得した約定履歴を保存するリスト（基本的に不要．）
@@ -153,6 +153,12 @@ class ChannelBreakOut:
         """
         lot = math.floor(margin*10**(-4))*10**(-2)
         return round(lot,2)
+
+    # 約定履歴ファイル
+    def writeorderhistory(self, priceOrderd, lotOrderd, profitRange, currentPos):
+        with open('log/orderhistory.csv', 'a') as orderhistoryfile:
+            orderhistorycsv = csv.writer(orderhistoryfile, lineterminator='\n')
+            orderhistorycsv.writerow([datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), priceOrderd, lotOrderd, profitRange, currentPos ])
 
     def calculateLines(self, df_candleStick, term, rangePercent, rangePercentTerm):
         """
@@ -416,7 +422,7 @@ class ChannelBreakOut:
         entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
         closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
         judgement = self.judge(df_candleStick, entryHighLine, entryLowLine, closeHighLine, closeLowLine, self.entryTerm)
-        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, originalWaitTerm=self.waitTerm, waitTh=self.waitTh, cost=self.cost)
+        pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, nOfTrade, plPerTrade, tradeLog = self.backtest(judgement, df_candleStick, 1, self.rangeTh, self.rangeTerm, self.waitTerm, self.waitTh, self.cost)
 
         if self.showFigure:
             from src import candle_plot
@@ -590,6 +596,25 @@ class ChannelBreakOut:
         collateral = self.order.getcollateral()
         logging.info('collateral:%s', collateral["collateral"])
 
+        # 約定履歴ファイルの復元
+        try:
+            with open('log/orderhistory.csv', 'r') as orderhistoryfile:
+                orderhistorycsv = csv.reader(orderhistoryfile)
+                for row in orderhistorycsv:
+                    orderhistory=row
+                    if orderhistory[3]!=0 :
+                        pl.append(pl[-1] + float(orderhistory[2])*float(orderhistory[3]))
+                    if orderhistory[4]!=0 :
+                        lastPositionPrice = float(orderhistory[1])
+                        lastlot = float( orderhistory[2] )
+                    pos = int( orderhistory[4] )
+        except:
+            pass
+
+        # 前回からのポジションを引き継ぐ場合には前回のロットでクローズを行う事
+        if pos!=0 :
+            lot = lastlot
+
         try:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getCandlestick(480, "3600")
@@ -607,8 +632,11 @@ class ChannelBreakOut:
         closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
 
         #直近約定件数30件の高値と安値
-        high = max([self.executions[-1-i]["price"] for i in range(30)])
-        low = min([self.executions[-1-i]["price"] for i in range(30)])
+        try:
+            high = max([self.executions[-1-i]["price"] for i in range(30)])
+            low = min([self.executions[-1-i]["price"] for i in range(30)])
+        except:
+            logging.error("Pubnub connection error")
 
         message = "Starting for channelbreak."
         logging.info(message)
@@ -645,8 +673,12 @@ class ChannelBreakOut:
                 pass
 
             #直近約定件数30件の高値と安値
-            high = max([self.executions[-1-i]["price"] for i in range(30)])
-            low = min([self.executions[-1-i]["price"] for i in range(30)])
+            try:
+                high = max([self.executions[-1-i]["price"] for i in range(30)])
+                low = min([self.executions[-1-i]["price"] for i in range(30)])
+            except:
+                logging.error("Pubnub connection error")
+
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
 
@@ -669,9 +701,9 @@ class ChannelBreakOut:
             logging.info('closeLowLine:%s closeHighLine:%s', closeLowLine[-1], closeHighLine[-1])
             logging.info('Server Health is:%s State is:%s', boardState["health"], boardState["state"])
             if pos == 1:
-                logging.info('position : Long(Price:%s)',lastPositionPrice)
+                logging.info('position : Long(Price:%s lot:%s)',lastPositionPrice,lot)
             elif pos == -1:
-                logging.info('position : Short(Price:%s)',lastPositionPrice)
+                logging.info('position : Short(Price:%s lot:%s)',lastPositionPrice,lot)
             else:
                 logging.info("position : None")
 
@@ -688,6 +720,7 @@ class ChannelBreakOut:
                     self.lineNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_ask
+                    self.writeorderhistory( best_ask, lot, 0, pos )
                 #ショートエントリー
                 elif judgement[1]:
                     logging.info("Short entry order")
@@ -699,6 +732,7 @@ class ChannelBreakOut:
                     self.lineNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_bid
+                    self.writeorderhistory( best_bid, lot, 0, pos )
 
             elif pos == 1:
                 #ロングクローズ
@@ -714,6 +748,7 @@ class ChannelBreakOut:
                     fileName = self.describePLForNotification(pl, df_candleStick)
                     self.lineNotify(message,fileName)
                     logging.info(message)
+                    self.writeorderhistory( best_bid, lot, plRange, pos )
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
                     if plRange > self.waitTh:
@@ -739,6 +774,7 @@ class ChannelBreakOut:
                     fileName = self.describePLForNotification(pl, df_candleStick)
                     self.lineNotify(message,fileName)
                     logging.info(message)
+                    self.writeorderhistory( best_ask, lot, plRange, pos )
 
                     #一定以上の値幅を取った場合，次の10トレードはロットを1/10に落とす．
                     if plRange > self.waitTh:
@@ -763,6 +799,7 @@ class ChannelBreakOut:
                     self.lineNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_ask
+                    self.writeorderhistory( best_ask, lot, 0, pos )
                 #ショートエントリー
                 elif judgement[1]:
                     logging.info("Short doten entry order")
@@ -774,6 +811,7 @@ class ChannelBreakOut:
                     self.lineNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_bid
+                    self.writeorderhistory( best_bid, lot, 0, pos )
 
             if (exeMin + 1 > exeTimer5 or exeMin + 1 < exeTimer5) and exeMin % 5 == 0:
                 exeTimer5 = exeMin + 1

@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/20  
+README更新日 2018/4/22  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -12,6 +12,7 @@ Commercial use is strictly prohibited.
 </font>
 
 ## インストール方法
+※Anacondaによる環境構築は非推奨です。  
 1) [python3](https://www.python.org/) をインストール
 2) ターミナルからgitリポジトリをクローン
 
@@ -24,20 +25,16 @@ git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
 for Windows 10 with Python 3.6.5
 ```bash
 cd ChannelBreakoutBot
-pip install -U pip setuptools
-pip install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
-pip install networkx==1.11
+pip install -U -r requirements.txt
 ```
 for ubuntu16.04 with Python 3.5.2
 ```bash
 cd ChannelBreakoutBot
 apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
-pip3 install -U pip setuptools
-pip3 install pybitflyer requests pandas pubnub tornado matplotlib hyperopt
-pip3 install networkx==1.11
+pip3 install -U -r requirements.txt
 ```
-4) インストールフォルダ内の`config_default.json`を`config.json`にリネーム
-5) インストールフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
+4) configフォルダ内の`config_default.json`を`config.json`にリネーム
+5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
 6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム
 7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
 8) コンソールから起動
@@ -51,6 +48,9 @@ for ubuntu16.04 with Python 3.5.2
 python3 trade.py
 ```
 
+### bitflyerAPIの権限設定
+下記の通り、許可を与えて下さい。
+![permission](png/api_permission.png)
 ## 最新版へのアップデート方法
 
 インストールフォルダでコンソールから以下を実行。
@@ -86,8 +86,9 @@ git pull
 |showTradeDetail|true/false|バックテストの結果として、トレード履歴の詳細を表示する。|
 |core|number/null|optimizationで使用するCPUコア数を指定。`null`の場合、全てのコアを利用する。`1`の場合、パラメータ毎の詳細実行結果を表示するが、`2`以上または`null`の場合は、パラメータ毎の実行結果は簡易表示となる。(全てのコアを利用するとCPU使用率が100%に張り付くため、全体コア数-1の値を設定する事をオススメする。)|
 |hyperopt|number|機械学習によるoptimizationにて試行するテスト数を指定する。|
-|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン WIN:勝率 PFDD:PFの二乗+DD <br>EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
+|mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン <br>WIN:勝率 PFDD:利益率/ドローダウン <br>EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
 |useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
+|keepPosition|true/false|`true`の場合、前回終了時のポジションを引き継ぐ|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  

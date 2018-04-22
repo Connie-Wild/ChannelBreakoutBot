@@ -8,7 +8,7 @@ import datetime
 class BFOrder:
     def __init__(self):
         #config.jsonの読み込み
-        f = open('config.json', 'r', encoding="utf-8")
+        f = open('config/config.json', 'r', encoding="utf-8")
         config = json.load(f)
         self.product_code = config["product_code"]
         self.key = config["key"]
