@@ -38,11 +38,13 @@ def describe(params):
     elif "PF" in mlMode:
         result = -profitFactor
     elif "DD" in mlMode:
-        result = -maxLoss
+        result = maxLoss
     elif "WIN" in mlMode:
         result = -winPer
     elif "EV" in mlMode:
         result = -ev
+    elif "PF/DD" in mlMode:
+        result = -pl/DD
 
     logging.info("===========Assessment===========")
     return result
