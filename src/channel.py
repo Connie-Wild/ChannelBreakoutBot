@@ -704,6 +704,18 @@ class ChannelBreakOut:
                 serverHealth = False
                 logging.info('Server is %s/%s. Do not order.', boardState["health"], boardState["state"])
 
+            #値幅での判定．
+            if self.rangeTh != None:
+                rangelow = df_candleStick["low"][-self.rangeTerm+1:].min()
+                rangehigh = df_candleStick["high"][-self.rangeTerm+1:].max()
+                if low < rangehigh - self.rangeTh or high > rangelow + self.rangeTh:
+                    isRange[-1] = False
+            #終値の標準偏差の差分が正か負かでの判定．
+            elif th == None and term != None:
+                pass
+            else:
+                pass
+
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
             logging.info('entryHighLine:%s entryLowLine:%s', entryHighLine[-1], entryLowLine[-1])
