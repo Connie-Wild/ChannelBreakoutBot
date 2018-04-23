@@ -9,7 +9,7 @@ from src import channel
 from hyperopt import fmin, tpe, hp
 
 def describe(params):
-    i, j, k, l, candleTerm, cost, mlMode, fileName = params
+    i, j, k, l, m, cost, mlMode, fileName = params
 
     channelBreakOut = channel.ChannelBreakOut()
     channelBreakOut.entryTerm = i[0]
@@ -20,7 +20,7 @@ def describe(params):
     channelBreakOut.waitTh = k[1]
     channelBreakOut.rangePercent = l[0]
     channelBreakOut.rangePercentTerm = l[1]
-    channelBreakOut.candleTerm = candleTerm
+    channelBreakOut.candleTerm = str(m) + "T"
     channelBreakOut.cost = cost
     channelBreakOut.fileName = fileName
     logging.info("===========Test pattern===========")
@@ -58,6 +58,7 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
     rangePercentList = config["rangePercentList"]
     linePattern = config["linePattern"]
     termUpper = config["termUpper"]
+    candleTerm  = config["candleTerm"]
 
     if "COMB" in linePattern:
         entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
@@ -67,7 +68,7 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
     logging.info('Total pattern:%s Searches:%s',total,hyperopt)
     logging.info("======Optimization start======")
     #hyperoptによる最適値の算出
-    space = [hp.choice('i',entryAndCloseTerm), hp.choice('j',rangeThAndrangeTerm), hp.choice('k',waitTermAndwaitTh), hp.choice('l',rangePercentList), candleTerm, cost, mlMode, fileName]
+    space = [hp.choice('i',entryAndCloseTerm), hp.choice('j',rangeThAndrangeTerm), hp.choice('k',waitTermAndwaitTh), hp.choice('l',rangePercentList), hp.choice('m',candleTerm), cost, mlMode, fileName]
     result = fmin(describe,space,algo=tpe.suggest,max_evals=hyperopt)
 
     logging.info("======Optimization finished======")
@@ -80,12 +81,12 @@ def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
     channelBreakOut.waitTh = waitTermAndwaitTh[result['k']][1]
     channelBreakOut.rangePercent = rangePercentList[result['l']][0]
     channelBreakOut.rangePercentTerm = rangePercentList[result['l']][1]
-    channelBreakOut.candleTerm = candleTerm
+    channelBreakOut.candleTerm = str(candleTerm[result['m']]) + "T"
     channelBreakOut.cost = cost
     channelBreakOut.fileName = fileName
     channelBreakOut.showTradeDetail = showTradeDetail
     logging.info("======Best pattern======")
-    logging.info('candleTerm:%s mlMode:%s',candleTerm,mlMode)
+    logging.info('candleTerm:%s mlMode:%s',channelBreakOut.candleTerm,mlMode)
     logging.info('entryTerm:%s closeTerm:%s',channelBreakOut.entryTerm,channelBreakOut.closeTerm)
     logging.info('rangePercent:%s rangePercentTerm:%s',channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm)
     logging.info('rangeTerm:%s rangeTh:%s',channelBreakOut.rangeTerm,channelBreakOut.rangeTh)
