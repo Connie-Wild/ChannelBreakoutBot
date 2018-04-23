@@ -678,6 +678,16 @@ class ChannelBreakOut:
             except:
                 logging.error("Pubnub connection error")
 
+            #レンジ幅リアルタイム判定
+            if self.rangeTh != None:
+                highRange = max([df_candleStick["high"][-self.rangeTerm:].max(), high])
+                lowRange = min([df_candleStick["low"][-self.rangeTerm:].min(), low])
+                priceRange = highRange - lowRange
+                if priceRange > self.rangeTh:
+                    isRange[-1] = False
+            else:
+                pass
+
             #売り買い判定
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
 
