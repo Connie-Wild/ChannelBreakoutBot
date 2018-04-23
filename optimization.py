@@ -57,7 +57,7 @@ def describe(params):
         pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
     return [pl, profitFactor, i, l, j, k, m, is_blacklist]
 
-def optimization(candleTerm, cost, fileName, core, useBlackList):
+def optimization(cost, fileName, core, useBlackList):
     #optimizeList.jsonの読み込み
     f = open('config/optimizeList.json', 'r', encoding="utf-8")
     config = json.load(f)
@@ -195,5 +195,5 @@ if __name__ == '__main__':
 
     #最適化
     start = time.time()
-    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"], core=config["core"], useBlackList=config["useBlackList"])
+    optimization(cost=config["cost"], fileName=config["fileName"], core=config["core"], useBlackList=config["useBlackList"])
     logging.info('total processing time: %s', time.time() - start)

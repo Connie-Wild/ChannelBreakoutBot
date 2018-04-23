@@ -24,6 +24,7 @@ def describe(params):
     channelBreakOut.cost = cost
     channelBreakOut.fileName = fileName
     logging.info("===========Test pattern===========")
+    logging.info('candleTerm:%s',channelBreakOut.candleTerm)
     logging.info('entryTerm:%s closeTerm:%s',channelBreakOut.entryTerm,channelBreakOut.closeTerm)
     logging.info('rangePercent:%s rangePercentTerm:%s',channelBreakOut.rangePercent,channelBreakOut.rangePercentTerm)
     logging.info('rangeTerm:%s rangeTh:%s',channelBreakOut.rangeTerm,channelBreakOut.rangeTh)
@@ -48,7 +49,7 @@ def describe(params):
     logging.info('Result:%s',result)
     return result
 
-def optimization(candleTerm, cost, fileName, hyperopt, mlMode, showTradeDetail):
+def optimization(cost, fileName, hyperopt, mlMode, showTradeDetail):
     #optimizeList.jsonの読み込み
     f = open('config/optimizeList.json', 'r', encoding="utf-8")
     config = json.load(f)
@@ -139,9 +140,9 @@ if __name__ == '__main__':
     #config.jsonの読み込み
     f = open('config/config.json', 'r', encoding="utf-8")
     config = json.load(f)
-    logging.info('candleTerm:%s cost:%s mlMode:%s fileName:%s',config["candleTerm"],config["cost"],config["mlMode"],config["fileName"])
+    logging.info('cost:%s mlMode:%s fileName:%s',config["cost"],config["mlMode"],config["fileName"])
 
     #最適化
     start = time.time()
-    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"], hyperopt=config["hyperopt"], mlMode=config["mlMode"], showTradeDetail=config["showTradeDetail"])
+    optimization(cost=config["cost"], fileName=config["fileName"], hyperopt=config["hyperopt"], mlMode=config["mlMode"], showTradeDetail=config["showTradeDetail"])
     logging.info('total processing time: %s', time.time() - start)
