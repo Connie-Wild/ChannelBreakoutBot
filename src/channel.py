@@ -512,12 +512,11 @@ class ChannelBreakOut:
 
     #csvファイル（ヘッダなし）からohlcデータを作成．
     def readDataFromFile(self, filename):
-        for i in range(1, 10, 1):
-            with open(filename, 'r', encoding="utf-8") as f:
-                reader = csv.reader(f)
-                header = next(reader)
-                for row in reader:
-                    candleStick = [row for row in reader if row[4] != "0"]
+        with open(filename, 'r', encoding="utf-8") as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            for row in reader:
+                candleStick = [row for row in reader if row[4] != "0"]
         dtDate = [datetime.datetime.strptime(data[0], '%Y-%m-%d %H:%M:%S') for data in candleStick]
         dtTimeStamp = [dt.timestamp() for dt in dtDate]
         for i in range(len(candleStick)):
