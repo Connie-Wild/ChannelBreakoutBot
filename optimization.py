@@ -14,7 +14,7 @@ def eq(a, b):
     return (a == b) | (pd.isnull(a) & pd.isnull(b))
 
 def describe(params):
-    i, j, k, l, candleTerm, cost, fileName, core, useBlackList = params
+    i, j, k, l, m, cost, fileName, core, useBlackList = params
 
     channelBreakOut = channel.ChannelBreakOut()
     channelBreakOut.entryTerm = i[0]
@@ -25,12 +25,12 @@ def describe(params):
     channelBreakOut.waitTh = k[1]
     channelBreakOut.rangePercent = l[0]
     channelBreakOut.rangePercentTerm = l[1]
-    channelBreakOut.candleTerm = candleTerm
+    channelBreakOut.candleTerm = str(m) + "T"
     channelBreakOut.cost = cost
     channelBreakOut.fileName = fileName
     if core == 1:
         logging.info('================================')
-        logging.info('entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s',i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1])
+        logging.info('entryTerm:%s closeTerm:%s rangePercent:%s rangePercentTerm:%s rangeTerm:%s rangeTh:%s waitTerm:%s waitTh:%s candleTerm:%s',i[0],i[1],l[0],l[1],j[1],j[0],k[0],k[1],m)
     else:
         pass
 
@@ -39,7 +39,7 @@ def describe(params):
     if useBlackList:
         bl = read_blacklist()
         co = bl.columns.values
-        is_blacklist = ((bl[co[0]] == candleTerm) &
+        is_blacklist = ((bl[co[0]] == m) &
                         (eq(bl[co[1]], i[0])) &
                         (eq(bl[co[2]], i[1])) &
                         (eq(bl[co[3]], j[0])) &
@@ -55,9 +55,9 @@ def describe(params):
     else:
         #テスト
         pl, profitFactor, maxLoss, winPer, ev = channelBreakOut.describeResult()
-    return [pl, profitFactor, i, l, j, k, is_blacklist]
+    return [pl, profitFactor, i, l, j, k, m, is_blacklist]
 
-def optimization(candleTerm, cost, fileName, core, useBlackList):
+def optimization(cost, fileName, core, useBlackList):
     #optimizeList.jsonの読み込み
     f = open('config/optimizeList.json', 'r', encoding="utf-8")
     config = json.load(f)
@@ -67,16 +67,17 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
     rangePercentList = config["rangePercentList"]
     linePattern = config["linePattern"]
     termUpper = config["termUpper"]
+    candleTerm  = config["candleTerm"]
 
     if "COMB" in linePattern:
         entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
 
-    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
+    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList) * len(candleTerm)
 
     paramList = []
     params = []
-    for i, j, k, l in itertools.product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList):
-        params.append([i, j, k, l, candleTerm, cost, fileName, core, useBlackList])
+    for i, j, k, l, m in itertools.product(entryAndCloseTerm, rangeThAndrangeTerm, waitTermAndwaitTh, rangePercentList, candleTerm):
+        params.append([i, j, k, l, m, cost, fileName, core, useBlackList])
 
     black_list = read_blacklist()
     if core == 1:
@@ -89,13 +90,13 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
         # 非同期処理
         with ProcessPoolExecutor(max_workers=core) as executor:
             for result in executor.map(describe, params):
-                skiped = '(skip)' if result[6] == True else ''
+                skiped = '(skip)' if result[7] == True else ''
                 paramList.append(result)
                 logging.info('[%s/%s] result%s:%s',len(paramList),total,skiped,paramList[-1])
                 # ブラックリスト追加
-                if (useBlackList == True) & (result[0] < 0) & (result[6] == False):
+                if (useBlackList == True) & (result[0] < 0) & (result[7] == False):
                     new_bl = pd.DataFrame(
-                        [[candleTerm, result[2][0], result[2][1], result[4][0], result[4][1], result[5][1], result[5][0], result[3][0], result[3][0]]], columns=black_list.columns.values)
+                        [[result[6], result[2][0], result[2][1], result[4][0], result[4][1], result[5][1], result[5][0], result[3][0], result[3][0]]], columns=black_list.columns.values)
                     black_list = black_list.append(new_bl)
     # ブラックリスト書き込み
     if useBlackList: black_list.to_csv('blacklist.csv', index=False, sep=',')
@@ -105,7 +106,7 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
     logging.info("======Optimization finished======")
     logging.info('Search pattern :%s', len(paramList))
     logging.info("Parameters:")
-    logging.info("[entryTerm, closeTerm], [rangePercent, rangePercentTerm], [rangeTh, rangeTerm], [waitTerm, waitTh]")
+    logging.info("[entryTerm, closeTerm], [rangePercent, rangePercentTerm], [rangeTh, rangeTerm], [waitTerm, waitTh], [candleTerm]")
     logging.info("ProfitFactor max:")
     logging.info(paramList[pF.index(max(pF))])
     logging.info("PL max:")
@@ -137,7 +138,7 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
         print("    \"rangeTh\" : ", paramList[pF.index(max(pF))][4][0], ",", sep="")
     print("    \"waitTerm\" : ", paramList[pF.index(max(pF))][5][0], ",", sep="")
     print("    \"waitTh\" : ", paramList[pF.index(max(pF))][5][1], ",", sep="")
-    print("    \"candleTerm\" : \"", candleTerm, "\",", sep="")
+    print("    \"candleTerm\" : \"", paramList[pF.index(max(pF))][6], "T\",", sep="")
 
     print("*********PL max*********")
     print("PL", paramList[pL.index(max(pL))][0])
@@ -162,7 +163,7 @@ def optimization(candleTerm, cost, fileName, core, useBlackList):
         print("    \"rangeTh\" : ", paramList[pL.index(max(pL))][4][0], ",", sep="")
     print("    \"waitTerm\" : ", paramList[pL.index(max(pL))][5][0], ",", sep="")
     print("    \"waitTh\" : ", paramList[pL.index(max(pL))][5][1], ",", sep="")
-    print("    \"candleTerm\" : \"", candleTerm, "\",", sep="")
+    print("    \"candleTerm\" : \"", paramList[pF.index(max(pF))][6], "T\",", sep="")
 
 def read_blacklist():
     if os.path.exists('blacklist.csv'):
@@ -190,9 +191,9 @@ if __name__ == '__main__':
     #config.jsonの読み込み
     f = open('config/config.json', 'r', encoding="utf-8")
     config = json.load(f)
-    logging.info('candleTerm:%s cost:%s core:%s fileName:%s',config["candleTerm"],config["cost"],config["core"],config["fileName"])
+    logging.info('cost:%s core:%s fileName:%s',config["cost"],config["core"],config["fileName"])
 
     #最適化
     start = time.time()
-    optimization(candleTerm=config["candleTerm"], cost=config["cost"], fileName=config["fileName"], core=config["core"], useBlackList=config["useBlackList"])
+    optimization(cost=config["cost"], fileName=config["fileName"], core=config["core"], useBlackList=config["useBlackList"])
     logging.info('total processing time: %s', time.time() - start)

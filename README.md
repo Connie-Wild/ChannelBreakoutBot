@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/22  
+README更新日 2018/4/23  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -143,6 +143,7 @@ python3 machineLearning.py
 |rangeThAndrangeTerm|number/null|[rangeTh,rangeTerm]で指定。|
 |waitTermAndwaitTh|number|[waitTerm,waitTh]で指定。|
 |rangePercentList|number/null|[rangePercent,rangePercentTerm]で指定。|
+|candleTerm|number|[candleTerm]で指定。|
 
 ## optimization用のOHLCデータの取得
 コマンドライン引数に取得したい日付と取得時間足を指定する事が出来る。  
