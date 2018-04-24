@@ -96,7 +96,7 @@ def optimization(cost, fileName, core, useBlackList):
                 # ブラックリスト追加
                 if (useBlackList == True) & (result[0] < 0) & (result[7] == False):
                     new_bl = pd.DataFrame(
-                        [[result[6], result[2][0], result[2][1], result[4][0], result[4][1], result[5][1], result[5][0], result[3][0], result[3][0]]], columns=black_list.columns.values)
+                        [[result[6], result[2][0], result[2][1], result[4][0], result[4][1], result[5][1], result[5][0], result[3][0], result[3][1]]], columns=black_list.columns.values)
                     black_list = black_list.append(new_bl)
     # ブラックリスト書き込み
     if useBlackList: black_list.to_csv('blacklist.csv', index=False, sep=',')
