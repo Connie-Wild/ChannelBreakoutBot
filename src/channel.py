@@ -692,17 +692,21 @@ class ChannelBreakOut:
             judgement = self.judgeForLoop(high, low, entryHighLine, entryLowLine, closeHighLine, closeLowLine)
 
             #取引所のヘルスチェック
-            boardState = self.order.getboardstate()
-            serverHealth = True
-            permitHealth1 = ["NORMAL", "BUSY", "VERY BUSY"]
-            permitHealth2 = ["NORMAL", "BUSY", "VERY BUSY", "SUPER BUSY"]
-            if (boardState["health"] in permitHealth1) and boardState["state"] == "RUNNING" and self.healthCheck:
-                pass
-            elif (boardState["health"] in permitHealth2) and boardState["state"] == "RUNNING" and not self.healthCheck:
-                pass
-            else:
+            try:
+                boardState = self.order.getboardstate()
+                serverHealth = True
+                permitHealth1 = ["NORMAL", "BUSY", "VERY BUSY"]
+                permitHealth2 = ["NORMAL", "BUSY", "VERY BUSY", "SUPER BUSY"]
+                if (boardState["health"] in permitHealth1) and boardState["state"] == "RUNNING" and self.healthCheck:
+                    pass
+                elif (boardState["health"] in permitHealth2) and boardState["state"] == "RUNNING" and not self.healthCheck:
+                    pass
+                else:
+                    serverHealth = False
+                    logging.info('Server is %s/%s. Do not order.', boardState["health"], boardState["state"])
+            except:
                 serverHealth = False
-                logging.info('Server is %s/%s. Do not order.', boardState["health"], boardState["state"])
+                logging.error("Health check failed")
 
             #ログ出力
             logging.info('high:%s low:%s isRange:%s', high, low, isRange[-1])
