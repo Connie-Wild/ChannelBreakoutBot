@@ -64,7 +64,7 @@ def optimization(cost, fileName, hyperopt, mlMode, showTradeDetail):
     if "COMB" in linePattern:
         entryAndCloseTerm = list(itertools.product(range(2,termUpper), range(2,termUpper)))
 
-    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList)
+    total = len(entryAndCloseTerm) * len(rangeThAndrangeTerm) * len(waitTermAndwaitTh) * len(rangePercentList) * len(candleTerm)
 
     logging.info('Total pattern:%s Searches:%s',total,hyperopt)
     logging.info("======Optimization start======")
