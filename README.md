@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/23  
+README更新日 2018/4/27  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -57,6 +57,7 @@ python3 trade.py
 
 ```bash
 git pull
+pip install -U -r requirements.txt
 ```
 ## 設定
 設定は`config.json`ファイルで行います。
