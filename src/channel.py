@@ -9,6 +9,7 @@ import pandas as pd
 import time
 import datetime
 import logging
+import websocket
 from pubnub.callbacks import SubscribeCallback
 from pubnub.enums import PNStatusCategory
 from pubnub.pnconfiguration import PNConfiguration
@@ -580,7 +581,7 @@ class ChannelBreakOut:
         """
         注文の実行ループを回す関数
         """
-        self.executionsProcess()
+        self.executionsWebsocket()
         #pubnubが回り始めるまで待つ．
         time.sleep(20)
         pos = 0
@@ -635,7 +636,7 @@ class ChannelBreakOut:
             high = max([self.executions[-1-i]["price"] for i in range(30)])
             low = min([self.executions[-1-i]["price"] for i in range(30)])
         except:
-            logging.error("Pubnub connection error")
+            logging.error("Executions data connection error")
 
         message = "Starting for channelbreak."
         logging.info(message)
@@ -856,3 +857,41 @@ class ChannelBreakOut:
         pubnub.subscribe().channels(channels).execute()
         pubnubThread = threading.Thread(target=pubnub.start)
         pubnubThread.start()
+
+    def executionsWebsocket(self):
+        """
+        Websocketで価格を取得する場合の処理
+        """
+        executions = self.executions
+        def on_message(ws, message):
+            messages = json.loads(message)
+            execution = messages["params"]["message"]
+            for i in execution:
+                executions.append(i)
+
+        def on_error(ws, error):
+            logging.error(error)
+
+        def on_close(ws):
+            while True:
+                time.sleep(3)
+                try:
+                    ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
+                                                on_message = on_message,
+                                                on_error = on_error,
+                                                on_close = on_close)
+                    ws.on_open = on_open
+                    ws.run_forever()
+                except Exception as e:
+                    logging.error(e)
+
+        def on_open(ws):
+            ws.send(json.dumps({"method": "subscribe", "params": {"channel": "lightning_executions_FX_BTC_JPY"}}))
+
+        ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
+                                    on_message = on_message,
+                                    on_error = on_error,
+                                    on_close = on_close)
+        ws.on_open = on_open
+        websocketThread = threading.Thread(target=ws.run_forever)
+        websocketThread.start()
