@@ -23,5 +23,6 @@
     "hyperopt" : 1000,
     "mlMode" : "PL",
     "useBlackList" : true,
-    "keepPosition" : false
+    "keepPosition" : false,
+    "sfdLimit" : true
 }
