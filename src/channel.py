@@ -420,6 +420,14 @@ class ChannelBreakOut:
         if self.fileName == None:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getSpecifiedCandlestick(2000, "3600")
+            elif "30T" in self.candleTerm:
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(4000, "1800")
+            elif "15T" in self.candleTerm:
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "900")
+            elif "5T" in self.candleTerm:
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "300")
+            elif "3T" in self.candleTerm:
+                candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "180")
             else:
                 candleStick = self.cryptowatch.getSpecifiedCandlestick(5999, "60")
         else:
@@ -629,6 +637,14 @@ class ChannelBreakOut:
         try:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getCandlestick(480, "3600")
+            elif "30T" in self.candleTerm:
+                candleStick = self.cryptowatch.getCandlestick(100, "1800")
+            elif "15T" in self.candleTerm:
+                candleStick = self.cryptowatch.getCandlestick(100, "900")
+            elif "5T" in self.candleTerm:
+                candleStick = self.cryptowatch.getCandlestick(100, "300")
+            elif "3T" in self.candleTerm:
+                candleStick = self.cryptowatch.getCandlestick(100, "180")
             else:
                 candleStick = self.cryptowatch.getCandlestick(480, "60")
         except:
@@ -665,6 +681,14 @@ class ChannelBreakOut:
                 try:
                     if "H" in self.candleTerm:
                         candleStick = self.cryptowatch.getCandlestick(480, "3600")
+                    elif "30T" in self.candleTerm:
+                        candleStick = self.cryptowatch.getCandlestick(100, "1800")
+                    elif "15T" in self.candleTerm:
+                        candleStick = self.cryptowatch.getCandlestick(100, "900")
+                    elif "5T" in self.candleTerm:
+                        candleStick = self.cryptowatch.getCandlestick(100, "300")
+                    elif "3T" in self.candleTerm:
+                        candleStick = self.cryptowatch.getCandlestick(100, "180")
                     else:
                         candleStick = self.cryptowatch.getCandlestick(480, "60")
                 except:
