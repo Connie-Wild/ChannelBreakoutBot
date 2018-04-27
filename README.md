@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/27  
+README更新日 2018/4/28  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
