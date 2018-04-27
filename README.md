@@ -90,6 +90,7 @@ pip install -U -r requirements.txt
 |mlMode|string|機械学習で最適値を求める項目を選択する。<br>PL:利益 PF:利益率 DD:ドローダウン <br>WIN:勝率 PFDD:利益率/ドローダウン <br>EV:期待値[勝率 * 平均利益 - (1-勝率) * 平均損失]|
 |useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
 |keepPosition|true/false|`true`の場合、前回終了時のポジションを引き継ぐ|
+|sfdLimit|true/false|現物とFXの乖離率が4.9%を超える場合、超える方向へのエントリーを制限する。|
 
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  

@@ -39,6 +39,7 @@ if __name__ == '__main__':
     channelBreakOut.waitTerm = config["waitTerm"]
     channelBreakOut.waitTh = config["waitTh"]
     channelBreakOut.candleTerm = config["candleTerm"]
+    channelBreakOut.sfdLimit = config["sfdLimit"]
     channelBreakOut.fileName = None
 
     # 約定履歴ファイルを引き継がない場合は削除
