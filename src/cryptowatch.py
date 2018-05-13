@@ -12,13 +12,13 @@ class CryptoWatch:
         #クエリパラメータを指定
         query = {"periods":','.join(periods)}
         #ローソク足取得
-        res = \
-            json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)[
-                "result"]
+        res = json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)
+        # 残りCPU時間とコストの表示
+        logging.info('cost:%s remaining:%s', res["allowance"]["cost"], res["allowance"]["remaining"])
         # ローソク足のデータを入れる配列．
         data = []
         for i in periods:
-            row = res[i]
+            row = res["result"][i]
             length = len(row)
             for column in row[:length - (number + 1):-1]:
                 # dataへローソク足データを追加．
@@ -37,6 +37,8 @@ class CryptoWatch:
         # ローソク足取得
         try:
             res = json.loads(requests.get("https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc", params=query).text)
+            # 残りCPU時間とコストの表示
+            logging.info('cost:%s remaining:%s', res["allowance"]["cost"], res["allowance"]["remaining"])
             res = res["result"]
         except:
             logging.error(res)
