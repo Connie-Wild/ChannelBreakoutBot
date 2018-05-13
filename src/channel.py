@@ -601,8 +601,7 @@ class ChannelBreakOut:
         """
         self.executionsWebsocket()
         self.spotExecutionsWebsocket()
-        #約定データが蓄積されるまで待機
-        time.sleep(20)
+
         pos = 0
         pl = []
         pl.append(0)
@@ -657,6 +656,10 @@ class ChannelBreakOut:
 
         entryLowLine, entryHighLine = self.calculateLines(df_candleStick, self.entryTerm, self.rangePercent, self.rangePercentTerm)
         closeLowLine, closeHighLine = self.calculateLines(df_candleStick, self.closeTerm, self.rangePercent, self.rangePercentTerm)
+
+        #約定データが蓄積されるまで待機
+        while (len(self.executions ) < 30) or (len(self.spotExecutions ) < 1) :
+            time.sleep(0.5)
 
         #直近約定件数30件の高値と安値
         try:
