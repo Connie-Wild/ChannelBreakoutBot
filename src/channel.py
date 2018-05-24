@@ -54,10 +54,10 @@ class ChannelBreakOut:
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
         #Discordに稼働状況を通知するWebHook
         try:
-            self.discorWebhook = config["discorWebhook"]
+            self.discordWebhook = config["discordWebhook"]
         except:
             #設定されていなければNoneにしておく
-            self.discorWebhook = None
+            self.discordWebhook = None
         # グラフ表示
         self.showFigure = False
         # バックテスト結果のグラフをLineで送る
@@ -565,27 +565,27 @@ class ChannelBreakOut:
             except:
                 pass
 
-    #config.json内の[discorWebhook]で指定されたDiscordのWebHookへの通知
+    #config.json内の[discordWebhook]で指定されたDiscordのWebHookへの通知
     def discordNotify(self, message, fileName=None):
         payload = {"content": " " + message + " "}
         if fileName == None:
             try:
-                requests.post(self.discorWebhook, data=payload)
+                requests.post(self.discordWebhook, data=payload)
             except:
                 pass
         else:
             try:
                 files = {"imageFile": open(fileName, "rb")}
-                requests.post(self.discorWebhook, data=payload, files = files)
+                requests.post(self.discordWebhook, data=payload, files = files)
             except:
                 pass
 
     def statusNotify(self, message, fileName=None):
-        #config.json内に[discorWebhook]が設定されていなければLINEへの通知
-        if self.discorWebhook == None :
+        #config.json内に[discordWebhook]が設定されていなければLINEへの通知
+        if self.discordWebhook == None :
             self.lineNotify( message, fileName)
         else:
-        #config.json内に[discorWebhook]が設定されていればDiscordへの通知
+        #config.json内に[discordWebhook]が設定されていればDiscordへの通知
             self.discordNotify( message, fileName)
 
             def describePLForNotification(self, pl, df_candleStick):
