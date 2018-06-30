@@ -195,15 +195,15 @@ class ChannelBreakOut:
                     lowLine.append(df_candleStick["low"][i] - priceRange[i] * rangePercent)
                     highLine.append(df_candleStick["high"][i] + priceRange[i] * rangePercent)
                 elif i < rangePercentTerm:
-                    priceRangeMean = sum(priceRange[i-term:i-1]) / term
-                    low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
-                    high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
+                    priceRangeMean = sum(priceRange[i-term : i]) / term
+                    low = min([price for price in df_candleStick["low"][i-term : i]]) - priceRangeMean * rangePercent
+                    high = max([price for price in df_candleStick["high"][i-term : i]]) + priceRangeMean * rangePercent
                     lowLine.append(low)
                     highLine.append(high)
                 else:
-                    priceRangeMean = sum(priceRange[i-rangePercentTerm:i-1]) / rangePercentTerm
-                    low = min([price for price in df_candleStick["low"][i-term:i-1]]) - priceRangeMean * rangePercent
-                    high = max([price for price in df_candleStick["high"][i-term:i-1]]) + priceRangeMean * rangePercent
+                    priceRangeMean = sum(priceRange[i-rangePercentTerm : i]) / rangePercentTerm
+                    low = min([price for price in df_candleStick["low"][i-term : i]]) - priceRangeMean * rangePercent
+                    high = max([price for price in df_candleStick["high"][i-term : i]]) + priceRangeMean * rangePercent
                     lowLine.append(low)
                     highLine.append(high)
         return (lowLine, highLine)
@@ -213,16 +213,12 @@ class ChannelBreakOut:
         termの期間の値幅を計算．
         """
         if term == 1:
-            #low = [min([df_candleStick["close"][i].min(), df_candleStick["open"][i].min()]) for i in range(len(df_candleStick.index))]
-            #high = [max([df_candleStick["close"][i].max(), df_candleStick["open"][i].max()]) for i in range(len(df_candleStick.index))]
             low = [df_candleStick["low"][i] for i in range(len(df_candleStick.index))]
             high = [df_candleStick["high"][i] for i in range(len(df_candleStick.index))]
             low = pd.Series(low)
             high = pd.Series(high)
             priceRange = [high.iloc[i]-low.iloc[i] for i in range(len(df_candleStick.index))]
         else:
-            #low = [min([df_candleStick["close"][i-term+1:i].min(), df_candleStick["open"][i-term+1:i].min()]) for i in range(len(df_candleStick.index))]
-            #high = [max([df_candleStick["close"][i-term+1:i].max(), df_candleStick["open"][i-term+1:i].max()]) for i in range(len(df_candleStick.index))]
             low = [df_candleStick["low"][i-term+1:i].min() for i in range(len(df_candleStick.index))]
             high = [df_candleStick["high"][i-term+1:i].max() for i in range(len(df_candleStick.index))]
             low = pd.Series(low)
@@ -253,18 +249,19 @@ class ChannelBreakOut:
         """
         judgement = [[0,0,0,0] for i in range(len(df_candleStick.index))]
         for i in range(len(df_candleStick.index)):
-            #上抜けでエントリー
-            if df_candleStick["high"][i] > entryHighLine[i] and i >= entryTerm:
-                judgement[i][0] = round((df_candleStick["high"][i] + entryHighLine[i]*2) / 3)
-            #下抜けでエントリー
-            if df_candleStick["low"][i] < entryLowLine[i] and i >= entryTerm:
-                judgement[i][1] = round((df_candleStick["low"][i] + entryLowLine[i]*2) / 3)
-            #下抜けでクローズ
-            if df_candleStick["low"][i] < closeLowLine[i] and i >= entryTerm:
-                judgement[i][2] = round((df_candleStick["low"][i] + closeLowLine[i]*2) / 3)
-            #上抜けでクローズ
-            if df_candleStick["high"][i] > closeHighLine[i] and i >= entryTerm:
-                judgement[i][3] = round((df_candleStick["high"][i] + closeHighLine[i]*2) / 3)
+            if i >= entryTerm:
+                #上抜けでエントリー
+                if df_candleStick["high"][i] > entryHighLine[i] > df_candleStick["open"][i]:
+                    judgement[i][0] = entryHighLine[i]
+                #下抜けでエントリー
+                if df_candleStick["low"][i] < entryLowLine[i] < df_candleStick["open"][i]:
+                    judgement[i][1] = entryLowLine[i]
+                #下抜けでクローズ
+                if df_candleStick["low"][i] < closeLowLine[i]:
+                    judgement[i][2] = closeLowLine[i]
+                #上抜けでクローズ
+                if df_candleStick["high"][i] > closeHighLine[i]:
+                    judgement[i][3] = closeHighLine[i]
             else:
                 pass
         return judgement
