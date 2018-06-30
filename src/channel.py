@@ -52,6 +52,12 @@ class ChannelBreakOut:
         #ラインに稼働状況を通知
         self.line_notify_token = config["line_notify_token"]
         self.line_notify_api = 'https://notify-api.line.me/api/notify'
+        #Discordに稼働状況を通知するWebHook
+        try:
+            self.discordWebhook = config["discordWebhook"]
+        except:
+            #設定されていなければNoneにしておく
+            self.discordWebhook = None
         # グラフ表示
         self.showFigure = False
         # バックテスト結果のグラフをLineで送る
@@ -450,7 +456,7 @@ class ChannelBreakOut:
             number = "_" + str(len(pl))
             fileName = "png/" + today + number + ".png"
             candle_plot.save(df_candleStick, pl, buyEntrySignals, sellEntrySignals, buyCloseSignals, sellCloseSignals, fileName)
-            self.lineNotify("Result of backtest",fileName)
+            self.statusNotify("Result of backtest",fileName)
         else:
             pass
 
@@ -556,7 +562,30 @@ class ChannelBreakOut:
             except:
                 pass
 
-    def describePLForNotification(self, pl, df_candleStick):
+    #config.json内の[discordWebhook]で指定されたDiscordのWebHookへの通知
+    def discordNotify(self, message, fileName=None):
+        payload = {"content": " " + message + " "}
+        if fileName == None:
+            try:
+                requests.post(self.discordWebhook, data=payload)
+            except:
+                pass
+        else:
+            try:
+                files = {"imageFile": open(fileName, "rb")}
+                requests.post(self.discordWebhook, data=payload, files = files)
+            except:
+                pass
+
+    def statusNotify(self, message, fileName=None):
+        #config.json内に[discordWebhook]が設定されていなければLINEへの通知
+        if self.discordWebhook == None :
+            self.lineNotify( message, fileName)
+        else:
+        #config.json内に[discordWebhook]が設定されていればDiscordへの通知
+            self.discordNotify( message, fileName)
+
+            def describePLForNotification(self, pl, df_candleStick):
         try:
             import matplotlib
             matplotlib.use('Agg')
@@ -664,7 +693,7 @@ class ChannelBreakOut:
 
         message = "Starting for channelbreak."
         logging.info(message)
-        self.lineNotify(message)
+        self.statusNotify(message)
 
         exeTimer1 = 0
         exeTimer5 = 0
@@ -780,7 +809,7 @@ class ChannelBreakOut:
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
                     best_ask = childOrder[0]["price"]
                     message = "Long entry. Lot:{}, Price:{}".format(lot, best_ask)
-                    self.lineNotify(message)
+                    self.statusNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_ask
                     self.writeorderhistory( best_ask, lot, 0, pos )
@@ -792,7 +821,7 @@ class ChannelBreakOut:
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
                     best_bid = childOrder[0]["price"]
                     message = "Short entry. Lot:{}, Price:{}, ".format(lot, best_bid)
-                    self.lineNotify(message)
+                    self.statusNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_bid
                     self.writeorderhistory( best_bid, lot, 0, pos )
@@ -809,7 +838,7 @@ class ChannelBreakOut:
                     pl.append(pl[-1] + plRange * lot)
                     message = "Long close. Lot:{}, Price:{}, pl:{}".format(lot, best_bid, pl[-1])
                     fileName = self.describePLForNotification(pl, df_candleStick)
-                    self.lineNotify(message,fileName)
+                    self.statusNotify(message,fileName)
                     logging.info(message)
                     self.writeorderhistory( best_bid, lot, plRange, pos )
 
@@ -835,7 +864,7 @@ class ChannelBreakOut:
                     pl.append(pl[-1] + plRange * lot)
                     message = "Short close. Lot:{}, Price:{}, pl:{}".format(lot, best_ask, pl[-1])
                     fileName = self.describePLForNotification(pl, df_candleStick)
-                    self.lineNotify(message,fileName)
+                    self.statusNotify(message,fileName)
                     logging.info(message)
                     self.writeorderhistory( best_ask, lot, plRange, pos )
 
@@ -859,7 +888,7 @@ class ChannelBreakOut:
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
                     best_ask = childOrder[0]["price"]
                     message = "Long entry. Lot:{}, Price:{}".format(lot, best_ask)
-                    self.lineNotify(message)
+                    self.statusNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_ask
                     self.writeorderhistory( best_ask, lot, 0, pos )
@@ -871,7 +900,7 @@ class ChannelBreakOut:
                     childOrder = self.order.getexecutions(orderId["child_order_acceptance_id"])
                     best_bid = childOrder[0]["price"]
                     message = "Short entry. Lot:{}, Price:{}, ".format(lot, best_bid)
-                    self.lineNotify(message)
+                    self.statusNotify(message)
                     logging.info(message)
                     lastPositionPrice = best_bid
                     self.writeorderhistory( best_bid, lot, 0, pos )
