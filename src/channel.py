@@ -585,7 +585,7 @@ class ChannelBreakOut:
         #config.json内に[discordWebhook]が設定されていればDiscordへの通知
             self.discordNotify( message, fileName)
 
-            def describePLForNotification(self, pl, df_candleStick):
+    def describePLForNotification(self, pl, df_candleStick):
         try:
             import matplotlib
             matplotlib.use('Agg')
