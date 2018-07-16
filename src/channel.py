@@ -951,27 +951,25 @@ class ChannelBreakOut:
             logging.error(error)
 
         def on_close(ws):
-            while True:
-                time.sleep(3)
-                try:
-                    ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
-                                                on_message = on_message,
-                                                on_error = on_error,
-                                                on_close = on_close)
-                    ws.on_open = on_open
-                    ws.run_forever()
-                except Exception as e:
-                    logging.error(e)
+            logging.info("Websocket closed")
 
         def on_open(ws):
             ws.send(json.dumps({"method": "subscribe", "params": {"channel": "lightning_executions_FX_BTC_JPY"}}))
+
+        def run(ws):
+            while True:
+                try:
+                    ws.run_forever()
+                except Exception as e:
+                    logging.error(e)
+                time.sleep(3)
 
         ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
                                     on_message = on_message,
                                     on_error = on_error,
                                     on_close = on_close)
         ws.on_open = on_open
-        websocketThread = threading.Thread(target=ws.run_forever)
+        websocketThread = threading.Thread(target=run, args=(ws,))
         websocketThread.start()
 
     def spotExecutionsWebsocket(self):
@@ -989,25 +987,23 @@ class ChannelBreakOut:
             logging.error(error)
 
         def on_close(ws):
-            while True:
-                time.sleep(3)
-                try:
-                    ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
-                                                on_message = on_message,
-                                                on_error = on_error,
-                                                on_close = on_close)
-                    ws.on_open = on_open
-                    ws.run_forever()
-                except Exception as e:
-                    logging.error(e)
+            logging.info("Websocket closed")
 
         def on_open(ws):
             ws.send(json.dumps({"method": "subscribe", "params": {"channel": "lightning_executions_BTC_JPY"}}))
+
+        def run(ws):
+            while True:
+                try:
+                    ws.run_forever()
+                except Exception as e:
+                    logging.error(e)
+                time.sleep(3)
 
         ws = websocket.WebSocketApp("wss://ws.lightstream.bitflyer.com/json-rpc",
                                     on_message = on_message,
                                     on_error = on_error,
                                     on_close = on_close)
         ws.on_open = on_open
-        websocketThread = threading.Thread(target=ws.run_forever)
+        websocketThread = threading.Thread(target=run, args=(ws,))
         websocketThread.start()
