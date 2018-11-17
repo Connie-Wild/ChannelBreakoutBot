@@ -7,13 +7,13 @@ import datetime
 #注文処理をまとめている
 class BFOrder:
     def __init__(self):
-        #config.jsonの読み込み
+        # config.jsonの読み込み
         f = open('config/config.json', 'r', encoding="utf-8")
         config = json.load(f)
         self.product_code = config["product_code"]
         self.key = config["key"]
         self.secret = config["secret"]
-        self.api = pybitflyer.API(self.key, self.secret)
+        self.api = pybitflyer.API(api_key=self.key, api_secret=self.secret, timeout=5)
 
     def limit(self, side, price, size, minute_to_expire=None):
         logging.info("Order: Limit. Side : {}".format(side))
@@ -141,7 +141,7 @@ class BFOrder:
         logging.debug(response)
         retry = 0
         while ("status" in response or not response or (response and not "JRF" in str(response))):
-            time.sleep(0.1)
+            time.sleep(0.25)
             try:
                 response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
             except:
