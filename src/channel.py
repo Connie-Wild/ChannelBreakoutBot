@@ -10,12 +10,6 @@ import time
 import datetime
 import logging
 import websocket
-from pubnub.callbacks import SubscribeCallback
-from pubnub.enums import PNStatusCategory
-from pubnub.pnconfiguration import PNConfiguration
-from pubnub.pubnub_tornado import PubNubTornado
-from pubnub.pnconfiguration import PNReconnectionPolicy
-from tornado import gen
 import threading
 from collections import deque
 from . import bforder
@@ -911,30 +905,6 @@ class ChannelBreakOut:
                 logging.info(message)
 
             time.sleep(2)
-
-    def executionsProcess(self):
-        """
-        pubnubで価格を取得する場合の処理（基本的に不要．）
-        """
-        channels = ["lightning_executions_FX_BTC_JPY"]
-        executions = self.executions
-        class BFSubscriberCallback(SubscribeCallback):
-            def message(self, pubnub, message):
-                execution = message.message
-                for i in execution:
-                    executions.append(i)
-
-        config = PNConfiguration()
-        config.subscribe_key = 'sub-c-52a9ab50-291b-11e5-baaa-0619f8945a4f'
-        config.reconnect_policy = PNReconnectionPolicy.EXPONENTIAL
-        config.ssl = False
-        config.set_presence_timeout(60)
-        pubnub = PubNubTornado(config)
-        listener = BFSubscriberCallback()
-        pubnub.add_listener(listener)
-        pubnub.subscribe().channels(channels).execute()
-        pubnubThread = threading.Thread(target=pubnub.start)
-        pubnubThread.start()
 
     def executionsWebsocket(self):
         """
