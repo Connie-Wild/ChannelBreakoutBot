@@ -3,6 +3,7 @@
 
 import json
 import logging
+import logging.handlers
 from src import channel
 
 if __name__ == '__main__':
