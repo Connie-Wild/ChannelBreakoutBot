@@ -133,24 +133,24 @@ class BFOrder:
         return response
 
     def getexecutions(self, order_id):
+        start = time.time()
         response = {"status": "internalError in bforder.py"}
         try:
             response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
         except:
             pass
         logging.debug(response)
-        retry = 0
         while ("status" in response or not response or (response and not "JRF" in str(response))):
+            if not response:
+                logging.debug(response)
+            else:
+                logging.error(response)
             time.sleep(0.25)
             try:
                 response = self.api.getexecutions(product_code=self.product_code, child_order_acceptance_id=order_id)
             except:
                 pass
-            retry += 1
-            if retry > 500:
-                logging.error(response)
-            else:
-                logging.debug(response)
+        logging.info("Finished:%ss", round(time.time() - start, 3))
         return response
 
     def getboardstate(self):
