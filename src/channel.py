@@ -178,7 +178,7 @@ class ChannelBreakOut:
         """
         lowLine = []
         highLine = []
-        if rangePercent == None or rangePercentTerm == None:
+        if rangePercent is None or rangePercentTerm is None:
             for i in range(len(df_candleStick.index)):
                 if i < term:
                     lowLine.append(df_candleStick["low"][i])
@@ -231,11 +231,11 @@ class ChannelBreakOut:
         レンジ相場かどうかをTrue,Falseの配列で返す．termは期間高値・安値の計算期間．thはレンジ判定閾値．
         """
         #値幅での判定．
-        if th != None:
+        if th is not None:
             priceRange = self.calculatePriceRange(df_candleStick, term)
             isRange = [th > i for i in priceRange]
         #終値の標準偏差の差分が正か負かでの判定．
-        elif th == None and term != None:
+        elif th is None and term is not None:
             df_candleStick["std"] = [df_candleStick["close"][i-term+1:i].std() for i in range(len(df_candleStick.index))]
             df_candleStick["std_slope"] = [df_candleStick["std"][i]-df_candleStick["std"][i-1] for i in range(len(df_candleStick.index))]
             isRange = [i > 0 for i in df_candleStick["std_slope"]]
@@ -414,7 +414,7 @@ class ChannelBreakOut:
         """
         signalsは買い，売り，中立が入った配列
         """
-        if self.fileName == None:
+        if self.fileName is None:
             if "H" in self.candleTerm:
                 candleStick = self.cryptowatch.getSpecifiedCandlestick(2000, "3600")
             elif "30T" in self.candleTerm:
@@ -430,7 +430,7 @@ class ChannelBreakOut:
         else:
             candleStick = self.readDataFromFile(self.fileName)
 
-        if self.candleTerm != None:
+        if self.candleTerm is not None:
             df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
         else:
             df_candleStick = self.fromListToDF(candleStick)
@@ -544,7 +544,7 @@ class ChannelBreakOut:
     def lineNotify(self, message, fileName=None):
         payload = {'message': message}
         headers = {'Authorization': 'Bearer ' + self.line_notify_token}
-        if fileName == None:
+        if fileName is None:
             try:
                 requests.post(self.line_notify_api, data=payload, headers=headers)
             except:
@@ -559,7 +559,7 @@ class ChannelBreakOut:
     #config.json内の[discordWebhook]で指定されたDiscordのWebHookへの通知
     def discordNotify(self, message, fileName=None):
         payload = {"content": " " + message + " "}
-        if fileName == None:
+        if fileName is None:
             try:
                 requests.post(self.discordWebhook, data=payload)
             except:
@@ -573,7 +573,7 @@ class ChannelBreakOut:
 
     def statusNotify(self, message, fileName=None):
         #config.json内に[discordWebhook]が設定されていなければLINEへの通知
-        if self.discordWebhook == None :
+        if self.discordWebhook is None :
             self.lineNotify( message, fileName)
         else:
         #config.json内に[discordWebhook]が設定されていればDiscordへの通知
@@ -666,7 +666,7 @@ class ChannelBreakOut:
         except:
             logging.error("Unknown error happend when you requested candleStick")
 
-        if self.candleTerm == None:
+        if self.candleTerm is None:
             df_candleStick = self.fromListToDF(candleStick)
         else:
             df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
@@ -714,7 +714,7 @@ class ChannelBreakOut:
                 except:
                     logging.error("Unknown error happend when you requested candleStick")
 
-                if self.candleTerm == None:
+                if self.candleTerm is None:
                     df_candleStick = self.fromListToDF(candleStick)
                 else:
                     df_candleStick = self.processCandleStick(candleStick, self.candleTerm)
@@ -735,7 +735,7 @@ class ChannelBreakOut:
                 logging.error("Pubnub connection error")
 
             #レンジ幅リアルタイム判定
-            if self.rangeTh != None:
+            if self.rangeTh is not None:
                 highRange = max([df_candleStick["high"][-self.rangeTerm:].max(), high])
                 lowRange = min([df_candleStick["low"][-self.rangeTerm:].min(), low])
                 priceRange = highRange - lowRange
