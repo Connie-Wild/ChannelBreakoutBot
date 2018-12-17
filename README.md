@@ -1,6 +1,6 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/4/28  
+README更新日 2018/12/17  
 
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
@@ -49,7 +49,7 @@ python3 trade.py
 ```
 
 ### bitflyerAPIの権限設定
-下記の通り、許可を与えて下さい。
+下記の通り、許可を与えて下さい。  
 ![permission](png/api_permission.png)
 ## 最新版へのアップデート方法
 
