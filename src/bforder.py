@@ -1,4 +1,4 @@
-import pybitflyer
+from pybitflyer_v2 import pybitflyer_v2
 import json
 import logging
 import time
@@ -13,7 +13,7 @@ class BFOrder:
         self.product_code = config["product_code"]
         self.key = config["key"]
         self.secret = config["secret"]
-        self.api = pybitflyer.API(api_key=self.key, api_secret=self.secret, timeout=5)
+        self.api = pybitflyer_v2.API(api_key=self.key, api_secret=self.secret, timeout=5)
 
     def limit(self, side, price, size, minute_to_expire=None):
         logging.info("Order: Limit. Side : {}".format(side))
