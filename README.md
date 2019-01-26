@@ -11,29 +11,10 @@ README更新日 2019/1/26
 Commercial use is strictly prohibited.
 </font>
   
-## インストール方法 for ubuntu16.04
+## インストール方法
 ※Anacondaによる環境構築は非推奨です。  
-1) [環境構築スクリプト](https://github.com/Connie-Wild/ubuntu_server_setup) を実行  
-2) ターミナルからgitリポジトリをクローン  
-```bash
-git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
-```
-3) フォルダに移動し、必要なパッケージをインストール  
-```bash
-cd ChannelBreakoutBot
-pip install -U -r requirements.txt
-```
-4) configフォルダ内の`config_default.json`を`config.json`にリネーム  
-5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム  
-6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム  
-7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。  
-8) コンソールから起動  
-```bash
-python trade.py
-```
-## インストール方法 for Windows10
-※Anacondaによる環境構築は非推奨です。  
-1) [python3.6](https://www.python.org/) をインストール  
+1-1) [環境構築スクリプト](https://github.com/Connie-Wild/ubuntu_server_setup) を実行(for ubuntu16.04)  
+1-2) [python3.6](https://www.python.org/downloads/windows) をインストール(for Windows10)  
 2) ターミナルからgitリポジトリをクローン  
 ```bash
 git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
