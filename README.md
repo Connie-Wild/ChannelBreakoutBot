@@ -1,7 +1,7 @@
 # Channel Breakout Bot for bitflyer-FX
 Special Thanks for Snufkin https://sshuhei.com/  
-README更新日 2018/12/17  
-
+README更新日 2019/1/26  
+  
 <font size="4">
 本ソフトウェアの商用利用を禁止します。<br>
 ソースコードを改変した物の販売や、設定パラメータの販売も許可しません。<br>
@@ -10,58 +10,58 @@ README更新日 2018/12/17
 なお、作者は本ソフトウェアによって生じる一切の損害について責任を負いません。<br>
 Commercial use is strictly prohibited.
 </font>
-
-## インストール方法
+  
+## インストール方法 for ubuntu16.04
 ※Anacondaによる環境構築は非推奨です。  
-1) [python3](https://www.python.org/) をインストール
-2) ターミナルからgitリポジトリをクローン
-
+1) [環境構築スクリプト](https://github.com/Connie-Wild/ubuntu_server_setup) を実行  
+2) ターミナルからgitリポジトリをクローン  
 ```bash
 git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
 ```
-
-3) フォルダに移動し、必要なパッケージをインストール<br>
-
-for Windows 10 with Python 3.6.5
+3) フォルダに移動し、必要なパッケージをインストール  
 ```bash
 cd ChannelBreakoutBot
 pip install -U -r requirements.txt
 ```
-for ubuntu16.04 with Python 3.5.2
-```bash
-cd ChannelBreakoutBot
-apt-get install -y python3 python3-pip python3-tk libpng-dev libfreetype6-dev
-pip3 install -U -r requirements.txt
-```
-4) configフォルダ内の`config_default.json`を`config.json`にリネーム
-5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム
-6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム
-7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。
-8) コンソールから起動
-
-for Windows 10 with Python 3.6.5
+4) configフォルダ内の`config_default.json`を`config.json`にリネーム  
+5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム  
+6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム  
+7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。  
+8) コンソールから起動  
 ```bash
 python trade.py
 ```
-for ubuntu16.04 with Python 3.5.2
+## インストール方法 for Windows10
+※Anacondaによる環境構築は非推奨です。  
+1) [python3.6](https://www.python.org/) をインストール  
+2) ターミナルからgitリポジトリをクローン  
 ```bash
-python3 trade.py
+git clone https://github.com/Connie-Wild/ChannelBreakoutBot.git
 ```
-
+3) フォルダに移動し、必要なパッケージをインストール  
+```bash
+cd ChannelBreakoutBot
+pip install -U -r requirements.txt
+```
+4) configフォルダ内の`config_default.json`を`config.json`にリネーム  
+5) configフォルダ内の`optimizeList_default.json`を`optimizeList.json`にリネーム  
+6) インストールフォルダ内の`blacklist_default.csv`を`blacklist.csv`にリネーム  
+7) `key`、`secret`フィールドを、取引所から取得したAPIキー、シークレットに置き換える。  
+8) コンソールから起動  
+```bash
+python trade.py
+```
 ### bitflyerAPIの権限設定
 下記の通り、許可を与えて下さい。  
-![permission](png/api_permission.png)
+![permission](png/api_permission.png)  
 ## 最新版へのアップデート方法
-
-インストールフォルダでコンソールから以下を実行。
-
+インストールフォルダでコンソールから以下を実行。  
 ```bash
 git pull
 pip install -U -r requirements.txt
 ```
 ## 設定
-設定は`config.json`ファイルで行います。
-
+設定は`config.json`ファイルで行います。  
 ### 全体設定
 |Name|Values|Description|
 |----|------|-----------|
@@ -91,51 +91,28 @@ pip install -U -r requirements.txt
 |useBlackList|true/false|optimization時にブラックリストを使用する。<br>マイナス収益のパラメータをブラックリストに登録し、次回以降該当パラメータはスキップする。|
 |keepPosition|true/false|`true`の場合、前回終了時のポジションを引き継ぐ|
 |sfdLimit|true/false|現物とFXの乖離率が4.9%を超える場合、超える方向へのエントリーを制限する。|
-
 ## バックテスト
 別途取得したOHLCデータ`fileName`を元にバックテストを行う。  
-`fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。   
-
-for Windows 10 with Python 3.6.5
+`fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。  
 ```bash
 python backtest.py
 ```
-for ubuntu16.04 with Python 3.5.2
-```bash
-python3 backtest.py
-```
-
 ## optimization
 別途取得したOHLCデータ`fileName`を元に最適な設定値の探索を試みる。  
 `fileName`の指定が無い場合は`cryptowat.ch`から都度取得する。(都度取得すると時間がかかる上に同じOHLCデータでの比較が出来ないので`fileName`の指定をする事をオススメします。)  
 自動設定はされないため、探索した値を利用したい場合は`config.json`に設定する必要あり。  
-パターンデータには`optimizeList.json`を利用する。 
-
-for Windows 10 with Python 3.6.5
+パターンデータには`optimizeList.json`を利用する。  
 ```bash
 python optimization.py
 ```
-for ubuntu16.04 with Python 3.5.2
-```bash
-python3 optimization.py
-```
-
 ## 機械学習によるoptimization
 hyperoptを用いてTree-structured Parzen Estimator Approach（TPE）ロジックによる最適値の算出を試みる。  
-パターンデータには`optimizeList.json`を利用する。
-
-for Windows 10 with Python 3.6.5
+パターンデータには`optimizeList.json`を利用する。  
 ```bash
 python machineLearning.py
 ```
-for ubuntu16.04 with Python 3.5.2
-```bash
-python3 machineLearning.py
-```
-
 ## optimization用のパターンデータの用意
-設定は`optimizeList.json`ファイルで行います。
-
+設定は`optimizeList.json`ファイルで行います。  
 ### パターンデータ
 |Name|Values|Description|
 |----|------|-----------|
@@ -146,7 +123,6 @@ python3 machineLearning.py
 |waitTermAndwaitTh|number|[waitTerm,waitTh]で指定。|
 |rangePercentList|number/null|[rangePercent,rangePercentTerm]で指定。|
 |candleTerm|number|[candleTerm]で指定。|
-
 ## optimization用のOHLCデータの取得
 コマンドライン引数に取得したい日付と取得時間足を指定する事が出来る。  
 時間足：1分足 = 60 , 1時間足 = 3600  
@@ -156,16 +132,9 @@ python3 machineLearning.py
 例)2018-04-05の5分足を取得する。  
 `ohlc_get.py 300 2018-04-05`  
 引数を指定しない場合、1分足データを6000件取得する。  
-
-for Windows 10 with Python 3.6.5
 ```bash
 python ohlc_get.py > chart.csv
 ```
-for ubuntu16.04 with Python 3.5.2
-```bash
-python3 ohlc_get.py > chart.csv
-```
-
 ## FAQ
 ### Q.どんな設定値を使えば利益を出せますか？
-A. バックテスト等を利用し、ご自身で探して下さい。
+A. バックテスト等を利用し、ご自身で探して下さい。  
